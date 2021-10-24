@@ -1,5 +1,6 @@
 import sys
 import os
+
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 import heapq
@@ -12,29 +13,31 @@ config.read('config.ini')
 from tqdm import tqdm
 from models.evaluation import recall_k
 from sklearn.metrics import ndcg_score
+from util.mywandb import WandbObject, WandbLog
 
 # 將資料轉換為矩陣形式
-def get_user_item_matrix(train_data, users, movies):
+def get_user_item_matrix(train_data, users, items):
     # init user_matrix as zero matrix
-    user_matrix = np.zeros((len(users), len(movies)))
+    user_matrix = np.zeros((len(users), len(items)))
 
-    for u in tqdm(users, desc='data transfer user matrix'):
+    for i in tqdm(range(len(users)), desc='data transfer user matrix'):
         '''
         train_data[train_data[:,0] == u] : 過濾出u使用者所有的評分資料
-        train_data[train_data[:,0] == u][:,1]: 取得u使用者所有評分過的電影名稱
+        train_data[train_data[:,0] == u][:,1]: 取得u使用者所有評分過的項目名稱
         '''
-        rate_index = train_data[train_data[:,0] == u][:,1]
+        rate_index = train_data[train_data[:,0] == users[i]][:,1]
         for rate in rate_index:
             '''
             user_matrix[u-1, rate-1]: 欲設置的rateing位置
-            train_data[(train_data[:,0] == u) & (train_data[:,1] == rate)]: 取出u使用者對於評論過特定電影的資料
+            train_data[(train_data[:,0] == u) & (train_data[:,1] == rate)]: 取出u使用者對於評論過特定項目的資料
             '''
-            user_matrix[u-1, rate-1] = train_data[(train_data[:,0] == u) & (train_data[:,1] == rate)][:,2].item()
+            user_matrix[i, rate-1] = train_data[(train_data[:,0] == users[i]) & (train_data[:,1] == rate)][:,2].item()
 
     return user_matrix
 
 
 def user_cosine_score(users, items, train_data, test_data):
+    log = WandbLog()
     # 取得資料矩陣
     user_matrix = get_user_item_matrix(train_data, users, items)
     test_matrix = get_user_item_matrix(test_data, users, items)
@@ -86,12 +89,14 @@ def user_cosine_score(users, items, train_data, test_data):
                 prediction.append(0)
         # 儲存所有使用者預測結果
         result[i] = prediction
+
     # 各評估指標
     evaluation = {
         'rmse': util.rmse(delta_list),
         'recall@10': recall_k(test_matrix, result), 
         'NDCG@10': ndcg_score(test_matrix, np.array([result[l] for l in result.keys()]), k=10)
     }
+    log.log_evaluation(evaluation)
     return evaluation
 
 # 推測評分
@@ -102,3 +107,9 @@ def predict(S, R):
 
     return np.dot(S,R)/ s
 
+def wandb_config():
+    wandb_object = WandbObject()
+    wandb_object.set_wandb_config({"testing_rate": int(config['Model']['testing_rate'])})
+    wandb_object.set_wandb_config({"random_state": int(config['Model']['random_state'])})
+    wandb_object.set_wandb_config({"similar_user_K": int(config['CF']['user_K'])})
+    wandb_object.set_wandb_config({"similar_item_K": int(config['CF']['item_K'])})
