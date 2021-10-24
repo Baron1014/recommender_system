@@ -4,3 +4,7 @@
 dataaccessframeworks/__pycache__/
 
 *.pyc
+
+wandb/
+
+util/__pycache__/
