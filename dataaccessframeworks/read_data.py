@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-import dataaccesskernel
+from dataaccessframeworks import dataaccesskernel
 import configparser
 from sklearn.model_selection import train_test_split
 config = configparser.ConfigParser()

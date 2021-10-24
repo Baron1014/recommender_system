@@ -10,33 +10,11 @@ import configparser
 config = configparser.ConfigParser()
 config.read('config.ini')
 from tqdm import tqdm
-from dataaccessframeworks.read_data import get_movielens, training_testing, user_filter
 from models.evaluation import recall_k
 from sklearn.metrics import ndcg_score
 
-def get_userbased_cosine():
-    # 取得 movielens 資料
-    data = get_movielens()
-    # str to int
-    user_movie = np.array([list(map(int, data))for data in data['user_movie']])
-    print(user_movie.shape)
-
-    # 濾除使用者評分小於三筆的資料
-    filter_data = user_filter(user_movie, 0)
-    print(f"使用者評分大於三次的共有：{filter_data.shape}")
-
-    # 取得電影個數及電影個數
-    users, movies = np.unique(filter_data[:,0]), np.unique(filter_data[:,1])
-
-    # 取得訓練資料及測試資料
-    training_data,  testing_data = training_testing(filter_data)
-
-    # 計算U-CF
-    ucf_reuslt = user_cosine_score(users, movies, training_data)
-    print(f"UCF={ucf_reuslt}")
-
 # 將資料轉換為矩陣形式
-def get_user_movie_matrix(train_data, users, movies):
+def get_user_item_matrix(train_data, users, movies):
     # init user_matrix as zero matrix
     user_matrix = np.zeros((len(users), len(movies)))
 
@@ -56,12 +34,13 @@ def get_user_movie_matrix(train_data, users, movies):
     return user_matrix
 
 
-def user_cosine_score(users, movies, train_data):
+def user_cosine_score(users, items, train_data, test_data):
     # 取得資料矩陣
-    user_matrix = get_user_movie_matrix(train_data, users, movies)
+    user_matrix = get_user_item_matrix(train_data, users, items)
+    test_matrix = get_user_item_matrix(test_data, users, items)
 
     # 計算bias
-    bias_matrix = util.get_bias(user_matrix, users, movies)
+    bias_matrix = util.get_bias(user_matrix, users, items)
     # 計算cosine
     cosine = util.get_consine_sim(users, user_matrix)
 
@@ -77,9 +56,9 @@ def user_cosine_score(users, movies, train_data):
         # recall
         prediction = list()
         # 計算相似使用者與使用者i的評分誤差
-        for m in range(len(movies)):
+        for m in range(len(items)):
             # 取得使用者i的評分(ground truth)
-            rth = user_matrix[i, m]
+            rth = test_matrix[i, m]
             # 如果使用者i有進行評分，則才納入計算RMSE
             if rth != 0:
                 # 之後需剔除對電影m未評分的相似使用者，因此先進行複製，才不會影響下一部電影的計算
@@ -88,11 +67,11 @@ def user_cosine_score(users, movies, train_data):
                 R = list()
                 # 判斷相似使用者是否對電影ｍ有評分，若有評分則將原始評分減去該使用者對電影m的bias
                 for c, j in enumerate(top_sim_index):
-                    if  user_matrix[j, m] == 0:
+                    if  test_matrix[j, m] == 0:
                         R.append(0)
                         copy_Suv[c] = 0
                     else:
-                        R.append(user_matrix[j, m] - bias_matrix[j, m])
+                        R.append(test_matrix[j, m] - bias_matrix[j, m])
                 # 如果所有相似使用者都沒評分則跳過此次計算
                 if sum(R) != 0:
                     # 預測使用者i對於第m部電影的評分 + 使用者i對電影m的偏差
@@ -108,13 +87,10 @@ def user_cosine_score(users, movies, train_data):
         # 儲存所有使用者預測結果
         result[i] = prediction
     # 各評估指標
-    print(f"user_matrix: {user_matrix[:10, :]}")
-    result_array = np.array([result[l] for l in result.keys()])
-    print(f"result: {result_array[:10, :]}")
     evaluation = {
         'rmse': util.rmse(delta_list),
-        'recall@10': recall_k(user_matrix, result), 
-        'NDCG@10': ndcg_score(user_matrix, np.array([result[l] for l in result.keys()]), k=10)
+        'recall@10': recall_k(test_matrix, result), 
+        'NDCG@10': ndcg_score(test_matrix, np.array([result[l] for l in result.keys()]), k=10)
     }
     return evaluation
 
@@ -126,5 +102,3 @@ def predict(S, R):
 
     return np.dot(S,R)/ s
 
-if __name__=="__main__":
-    get_userbased_cosine()

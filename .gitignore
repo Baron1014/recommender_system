@@ -1,2 +1,6 @@
 
 .ipynb_checkpoints/
+
+dataaccessframeworks/__pycache__/
+
+*.pyc
