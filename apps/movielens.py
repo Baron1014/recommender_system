@@ -8,6 +8,7 @@ import numpy as np
 import wandb
 from dataaccessframeworks.read_data import get_movielens, training_testing, user_filter
 from models.collaborative_filtering import user_sim_score, item_sim_score
+from models.matrix_factorization import execute_matrix_factorization
 
 def main():
     # 取得 movielens 資料
@@ -28,8 +29,9 @@ def main():
     # 1. U-CF-cos & U-CF-pcc
     #ucf(users, movies, training_data, testing_data)
     # 2. I-CF-cos & I-CF-pcc
-    icf(users, movies, training_data, testing_data)
-
+    #icf(users, movies, training_data, testing_data)
+    # 3. Matrix Factorization
+    mf(users, movies, training_data, testing_data)
 
     ###################################################################
     ## NN-based RecSys Methods
@@ -43,9 +45,17 @@ def main():
     ## Ensemble Methods
     ###################################################################
 
+def mf(users, movies, training_data, testing_data):
+    # init wandb run
+    run = wandb.init(project=config['general']['movielens'],
+                        entity=config['general']['entity'],
+                        group="MF",
+                        reinit=True)
+    reuslt = execute_matrix_factorization(users, movies, training_data, testing_data)
+    print(f"MF={reuslt}")
+    run.finish()
 
 def ucf(users, movies, training_data, testing_data):
-    ##### 計算U-CF
     # init wandb run
     run = wandb.init(project=config['general']['movielens'],
                         entity=config['general']['entity'],
@@ -56,7 +66,6 @@ def ucf(users, movies, training_data, testing_data):
     run.finish()
 
 def icf(users, movies, training_data, testing_data):
-    #### 計算I-CF
     # init wandb run
     run = wandb.init(project=config['general']['movielens'],
                         entity=config['general']['entity'],
