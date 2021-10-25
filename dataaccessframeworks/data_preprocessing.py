@@ -78,3 +78,5 @@ def get_one_hot_feature(data, user_item_col, y_col=2, time_col=3):
         ui_one_hot = np.concatenate((ui_one_hot, feature_one_hot), axis=1)
     
     print(f"the one hot data's shape is {ui_one_hot.shape}")
+
+    return ui_one_hot, y
