@@ -7,12 +7,14 @@ config.read('config.ini')
 import numpy as np
 import wandb
 from dataaccessframeworks.read_data import get_movielens, training_testing, user_filter
+from dataaccessframeworks.data_preprocessing import get_one_hot_feature
 from models.collaborative_filtering import user_sim_score, item_sim_score
 from models.matrix_factorization import execute_matrix_factorization
 
 def main():
     # 取得 movielens 資料
     data = get_movielens()
+    one_hot = get_one_hot_feature(data, 'user_movie')
     # str to int
     user_movie = np.array([list(map(int, data))for data in data['user_movie']])
     print(user_movie.shape)
@@ -31,7 +33,9 @@ def main():
     # 2. I-CF-cos & I-CF-pcc
     #icf(users, movies, training_data, testing_data)
     # 3. Matrix Factorization
-    mf(users, movies, training_data, testing_data)
+    #mf(users, movies, training_data, testing_data)
+    # 4. Factorization Machine
+    one_hot = get_one_hot_feature(data,  'user_movie')
 
     ###################################################################
     ## NN-based RecSys Methods
