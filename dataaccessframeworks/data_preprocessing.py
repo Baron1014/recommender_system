@@ -12,7 +12,7 @@ def get_one_hot_feature(data, user_item_col, y_col=2, time_col=3):
     print(filter_data.shape)
 
     # 取得y
-    y = filter_data[:,y_col]
+    y = filter_data[:,y_col].reshape(-1,1)
     # 刪除y及時間欄位
     filter_data = np.delete(filter_data, np.s_[y_col:time_col+1], axis=1)
     user, item = user_item_col.split('_')
