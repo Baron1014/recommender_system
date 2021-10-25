@@ -8,3 +8,5 @@ dataaccessframeworks/__pycache__/
 wandb/
 
 util/__pycache__/
+
+models/__pycache__/

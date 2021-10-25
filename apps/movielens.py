@@ -49,33 +49,33 @@ def main():
     ## Ensemble Methods
     ###################################################################
 
-def mf(users, movies, training_data, testing_data):
+def mf(users, items, training_data, testing_data):
     # init wandb run
     run = wandb.init(project=config['general']['movielens'],
                         entity=config['general']['entity'],
                         group="MF",
                         reinit=True)
-    reuslt = execute_matrix_factorization(users, movies, training_data, testing_data)
+    reuslt = execute_matrix_factorization(users, items, training_data, testing_data)
     print(f"MF={reuslt}")
     run.finish()
 
-def ucf(users, movies, training_data, testing_data):
+def ucf(users, items, training_data, testing_data):
     # init wandb run
     run = wandb.init(project=config['general']['movielens'],
                         entity=config['general']['entity'],
                         group="U-CF",
                         reinit=True)
-    reuslt = user_sim_score(users, movies, training_data, testing_data)
+    reuslt = user_sim_score(users, items, training_data, testing_data)
     print(f"UCF={reuslt}")
     run.finish()
 
-def icf(users, movies, training_data, testing_data):
+def icf(users, items, training_data, testing_data):
     # init wandb run
     run = wandb.init(project=config['general']['movielens'],
                         entity=config['general']['entity'],
                         group="I-CF",
                         reinit=True)
-    reuslt = item_sim_score(users, movies, training_data, testing_data)
+    reuslt = item_sim_score(users, items, training_data, testing_data)
     print(f"ICF={reuslt}")
     run.finish()
 
