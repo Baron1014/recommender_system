@@ -6,6 +6,10 @@ import numpy as np
 from dataaccessframeworks.read_data import user_filter
 
 def get_one_hot_feature(data, user_item_col, y_col=2, time_col=3):
+    # 取得user及items feature map 
+    users_dict, items_dict = get_feature_map(data, user_item_col)
+
+    # 將user item 數值轉為integer
     user_items = np.array([list(map(int, data))for data in data[user_item_col]])
     # 使用者評分次數小於三筆則剔除
     filter_data = user_filter(user_items, 0)
@@ -15,49 +19,8 @@ def get_one_hot_feature(data, user_item_col, y_col=2, time_col=3):
     y = filter_data[:,y_col].reshape(-1,1)
     # 刪除y及時間欄位
     filter_data = np.delete(filter_data, np.s_[y_col:time_col+1], axis=1)
-    user, item = user_item_col.split('_')
-    # 針對特徵進行map
-    for k in data.keys():
-        # 取得目前data欄位
-        col = len(filter_data[0])
-        # 新增加feature vec
-        if k==user_item_col:
-            continue
 
-        # 處理檔案名稱含有使用者的資料
-        elif user in k:
-            # 將feature資料轉為map
-            user_features = {int(d[0]): int(d[1]) for d in data[k]}
-            tmp = list()
-            # 將資料對應回去user item
-            for i in range(len(filter_data)):
-                # 如果有feature則填入
-                user_name = filter_data[i][0]
-                if user_name in user_features.keys():
-                    tmp.append(user_features[user_name])
-                # 不存在則補0
-                else:
-                    tmp.append(0)
-            filter_data = np.append(filter_data, np.array(tmp).reshape(-1, 1), axis=1)
-
-        # 處理檔案名稱含有item的資料
-        elif item in k:
-            # 將feature資料轉為map
-            item_features = {int(d[0]): int(d[1]) for d in data[k]}
-            tmp = list()
-            # 將資料對應回去user item
-            for i in range(len(filter_data)):
-                # 如果有feature則填入
-                item_name = filter_data[i][0]
-                if item_name in item_features.keys():
-                    tmp.append(item_features[item_name])
-                # 不存在則補0
-                else:
-                    tmp.append(0)
-            filter_data = np.append(filter_data, np.array(tmp).reshape(-1, 1), axis=1)
-
-        print(f"col {col} is {k}")
-
+    # think about how to addition fake data #
 
     # 取得user及item個數
     user_number = np.max(filter_data[:,0]) + 1
@@ -80,3 +43,41 @@ def get_one_hot_feature(data, user_item_col, y_col=2, time_col=3):
     print(f"the one hot data's shape is {ui_one_hot.shape}")
 
     return ui_one_hot, y
+
+# 產生feature  dict
+# target為users 或 items
+def generate_feature_map(target_dict, feature_data, new_feature):
+    # 將feature資料轉為map
+    features = {int(d[0]): int(d[1]) for d in feature_data}
+    # 將資料對應回去user item
+    for key in target_dict.keys():
+        # 為目標字典新增一個新特徵值
+        if new_feature not in target_dict[key]:
+            target_dict[key][new_feature] = list()
+        target_dict[key][new_feature].append(features[key])
+
+    return target_dict
+
+    # concate method: filter_data = np.append(filter_data, np.array(tmp).reshape(-1, 1), axis=1)
+
+# 取得 user 及 items 的feature map
+def get_feature_map(data, user_item_col):
+    user, item = user_item_col.split('_')
+    # init user_dict & items dict
+    users, items = np.unique(data[user_item_col][:,0]), np.unique(data[user_item_col][:,1])
+    users_dict = {u:dict() for u in users}
+    items_dict = {i:dict() for i in items}
+
+    for k in data.keys():
+        # 新增加feature vec
+        if k==user_item_col:
+            continue
+
+        # 處理檔案名稱含有使用者的資料
+        elif user in k:
+            users_dict = generate_feature_map(users_dict, data[k], k)
+        # 處理檔案名稱含有item的資料
+        elif item in k:
+            items_dict = generate_feature_map(items_dict, data[k], k)
+
+    return users_dict, items_dict

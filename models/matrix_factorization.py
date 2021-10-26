@@ -9,14 +9,18 @@ config.read('config.ini')
 import numpy as np
 import util.utility as util
 from models.collaborative_filtering import get_user_item_matrix
+from models.evaluation import recall_k
+from sklearn.metrics import ndcg_score
 
 def execute_matrix_factorization(users, items, train_data, test_data):
     # 存放測試資料集的rmse結果
     MF_bias_testing = list()
     # init evaluation
     evaluation = dict()
-    # init setting global mean
     user_item = get_user_item_matrix(train_data, users, items)
+    test_matrix = get_user_item_matrix(test_data, users, items)
+
+    # init setting global mean
     gu= util.get_u(user_item)
     # init setting user mean as bias
     bu = [util.get_ubias(user_item, i) - gu for i in range(len(users))] 
@@ -69,7 +73,10 @@ def execute_matrix_factorization(users, items, train_data, test_data):
             print(f"epoch={epoch}, gu={gu}, bu={np.mean(bu)}, bi={np.mean(bi)}, testing error={MF_bias_testing[-1]}")
 
     # 各評估指標
+    print("start evaluation model...")
     evaluation['rmse']= MF_bias_testing[-1]
+    evaluation['recall@10'] = recall_k(test_matrix, np.dot(P, Q.T))
+    evaluation['NDCG@10'] = ndcg_score(test_matrix, np.dot(P, Q.T))
     
     return evaluation
 

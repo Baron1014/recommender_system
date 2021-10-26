@@ -32,7 +32,7 @@ def main():
     # 2. I-CF-cos & I-CF-pcc
     icf(users, business, training_data, testing_data)
     # 3. Matrix Factorization
-    # mf(users, movies, training_data, testing_data)
+    mf(users, business, training_data, testing_data)
 
     ###################################################################
     ## NN-based RecSys Methods
