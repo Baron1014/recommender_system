@@ -24,7 +24,7 @@ def get_user_item_matrix(train_data, users, items):
         train_data[train_data[:,0] == u] : 過濾出u使用者所有的評分資料
         train_data[train_data[:,0] == u][:,1]: 取得u使用者所有評分過的項目名稱
         '''
-        rate_index = train_data[train_data[:,0] == users[i]][:,1]
+        rate_index = train_data[train_data[:,0] == users[i]][:,1]                                            
         for rate in rate_index:
             '''
             user_matrix[u-1, rate-1]: 欲設置的rateing位置
@@ -85,7 +85,7 @@ def user_sim_score(users, items, train_data, test_data):
                         # 計算square error
                         delta_list.append(util.se(rth, Rui))
                         # 儲存預測結果, 並取四捨五入
-                        prediction.append(round(Rui))
+                        prediction.append(Rui)
                     else:
                         prediction.append(0)
                 else:

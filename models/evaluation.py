@@ -1,10 +1,14 @@
 # deal with 2d - 2d
+import heapq
+
+
 def recall_k(true, predict, k=10):
     recall = list()
     for i in range(len(true)):
         # TP
         tp = true_positive(true[i], predict[i])
-        # tp_k
+        # 挑選預測數值前10大的item項的進行計算
+        predict_max_index = map(predict.index, heapq.nlargest(k, predict))
         tp_k = true_positive(true[i][:k], predict[i][:k])
         # recall value
         recall.append(tp_k/tp)
