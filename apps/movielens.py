@@ -30,15 +30,16 @@ def main():
     ## Typical RecSys Methods
     ###################################################################
     # 1. U-CF-cos & U-CF-pcc
-    ucf(users, movies, training_data, testing_data)
+    #ucf(users, movies, training_data, testing_data)
     # 2. I-CF-cos & I-CF-pcc
-    icf(users, movies, training_data, testing_data)
+    #icf(users, movies, training_data, testing_data)
     # 3. Matrix Factorization
-    mf(users, movies, training_data, testing_data)
+    #mf(users, movies, training_data, testing_data)
     # 4. Factorization Machine
-    # one_hot_x, y = get_one_hot_feature(data,  'user_movie')
-    # X_train, X_test, y_train, y_test = training_testing_XY(one_hot_x, y)
-    # reuslt = execute_factorization_machine(X_train, y_train, X_test, y_test)
+    one_hot_x, y = get_one_hot_feature(data,  'user_movie')
+    X_train, X_test, y_train, y_test = training_testing_XY(one_hot_x, y)
+    result = execute_factorization_machine(X_train, y_train, X_test, y_test)
+    print(result)
 
     ###################################################################
     ## NN-based RecSys Methods

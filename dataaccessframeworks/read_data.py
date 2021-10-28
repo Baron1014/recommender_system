@@ -8,7 +8,7 @@ config.read('config.ini')
 
 def get_movielens():
 
-    MovieLens = ['user_movie', 'movie_genre', 'movie_movie(knn)', 'user_age', 'user_occupation', 'user_user(knn)']
+    MovieLens = ['user_movie', 'movie_genre', 'user_age', 'user_occupation']
     movie = dict()
 
     for i in MovieLens:
