@@ -26,7 +26,8 @@ def execute_xgb_lr(X_train, y_train, X_test, y_test, test_index, users, items):
 
         print('Start training...')
         # train
-        gbm = xgb.XGBRegressor(X_train, y_train)
+        gbm = xgb.XGBRegressor()
+        gbm.fit(X_train, y_train)
         print('Start predicting...')
         # predict and get data on leaves, training data
         y_pred = gbm.predict(X_test)
