@@ -15,6 +15,7 @@ from models.factorization_machine import execute_factorization_machine
 from models.bpr_fm import execute_bpr_fm
 from models.bpr_mf import execute_bpr_mf
 from models.gbdt_lr import execute_gbdt_lr
+from models.xgboost_lr import execute_xgb_lr
 
 def main():
     # 取得 movielens 資料
@@ -55,7 +56,9 @@ def main():
     # 6. BPR-FM
     #bpr_fm(training_data, testing_data, users, movies)
     # 7. GBDT + LR
-    gbdt_lr(X_train, y_train, X_test, y_test)
+    # gbdt_lr(X_train, y_train, X_test, y_test)
+    # 8. xgboost + LR
+    execute_xgb_lr(X_train, y_train, X_test, y_test, test_index, users, movies)
     ###################################################################
     ## NN-based RecSys Methods
     ###################################################################
@@ -69,13 +72,24 @@ def main():
     ###################################################################
     ## Ensemble Methods
     ###################################################################
+def xgb_lr(X_train, y_train, X_test, y_test, test_index, users, items):
+    # init wandb run
+    run = wandb.init(project=config['general']['movielens'],
+                        entity=config['general']['entity'],
+                        group="XGB_LR",
+                        reinit=True)
+    reuslt = execute_xgb_lr(X_train, y_train, X_test, y_test, test_index, users, items)
+    print(f"XGB_LR={reuslt}")
+    run.finish()
+
+
 def gbdt_lr(X_train, y_train, X_test, y_test):
     # init wandb run
     run = wandb.init(project=config['general']['movielens'],
                         entity=config['general']['entity'],
                         group="GBDT_LR",
                         reinit=True)
-    reuslt = execute_bpr_mf(X_train, y_train, X_test, y_test)
+    reuslt = execute_gbdt_lr(X_train, y_train, X_test, y_test)
     print(f"GBDT_LR={reuslt}")
     run.finish()
 
