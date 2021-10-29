@@ -16,6 +16,7 @@ from models.bpr_fm import execute_bpr_fm
 from models.bpr_mf import execute_bpr_mf
 from models.gbdt_lr import execute_gbdt_lr
 from models.xgboost_lr import execute_xgb_lr
+from models.nn_based_models import DeepCTRModel
 
 def main():
     # 取得 movielens 資料
@@ -58,12 +59,12 @@ def main():
     # 7. GBDT + LR
     # gbdt_lr(X_train, y_train, X_test, y_test)
     # 8. xgboost + LR
-    execute_xgb_lr(X_train, y_train, X_test, y_test, test_index, users, movies)
+    #execute_xgb_lr(X_train, y_train, X_test, y_test, test_index, users, movies)
     ###################################################################
     ## NN-based RecSys Methods
     ###################################################################
     # 1. FM-supported Neural Networks
-    #reuslt = execute_factorization_machine(X_train, y_train, X_test, y_test)
+    fnn(X_train, y_train, X_test, y_test)
 
     ###################################################################
     ## Recent NN-based RecSys Methods
@@ -72,6 +73,17 @@ def main():
     ###################################################################
     ## Ensemble Methods
     ###################################################################
+def fnn(X_train, y_train, X_test, y_test):
+    run = wandb.init(project=config['general']['movielens'],
+                        entity=config['general']['entity'],
+                        group="FNN",
+                        reinit=True)
+    deer = DeepCTRModel()
+    result = deer.DeepFM()
+    reuslt = execute_factorization_machine(X_train, y_train, X_test, y_test)
+    print(f"FNN={reuslt}")
+    run.finish()
+
 def xgb_lr(X_train, y_train, X_test, y_test, test_index, users, items):
     # init wandb run
     run = wandb.init(project=config['general']['movielens'],
