@@ -10,3 +10,9 @@ wandb/
 util/__pycache__/
 
 models/__pycache__/
+
+spotlight/
+
+spotlight_package/
+
+lightfm
