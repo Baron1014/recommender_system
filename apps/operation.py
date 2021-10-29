@@ -23,6 +23,6 @@ for item in sys.argv:
 
 if not execute:
     print("start all process")
-    yelp.main()
     douban.main()
+    yelp.main()
     movielens.main()

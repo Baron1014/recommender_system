@@ -7,10 +7,11 @@ config.read('config.ini')
 import numpy as np
 import wandb
 from dataaccessframeworks.read_data import get_movielens, training_testing, user_filter, training_testing_XY
-from dataaccessframeworks.data_preprocessing import get_one_hot_feature
+from dataaccessframeworks.data_preprocessing import get_one_hot_feature, get_norating_data
 from models.collaborative_filtering import user_sim_score, item_sim_score
 from models.matrix_factorization import execute_matrix_factorization
 from models.factorization_machine import execute_factorization_machine
+from models.bpr_fm import execute_bpr_fm
 
 def main():
     # 取得 movielens 資料
@@ -35,12 +36,19 @@ def main():
     #icf(users, movies, training_data, testing_data)
     # 3. Matrix Factorization
     #mf(users, movies, training_data, testing_data)
-    # 4. Factorization Machine
-    one_hot_x, y = get_one_hot_feature(data,  'user_movie')
-    X_train, X_test, y_train, y_test = training_testing_XY(one_hot_x, y)
-    result = execute_factorization_machine(X_train, y_train, X_test, y_test)
-    print(result)
 
+    # generarte one hot encoding
+    one_hot_x, y, add_fake_data = get_one_hot_feature(data,  'user_movie')
+    X_train, X_test, y_train, y_test = training_testing_XY(one_hot_x, y)
+    _, test_index, _, _ = training_testing_XY(add_fake_data, y)
+    # 4. Factorization Machine
+    fm(X_train, y_train, X_test, y_test, test_index, users, movies)
+
+    # 取得加上使用者未評分的sample假資料
+    include_fake = get_norating_data(filter_data)
+    training_data,  testing_data = training_testing(include_fake)
+    # 6. BPR-FM
+    bpr_fm(training_data, testing_data)
     ###################################################################
     ## NN-based RecSys Methods
     ###################################################################
@@ -52,14 +60,25 @@ def main():
     ###################################################################
     ## Ensemble Methods
     ###################################################################
+def bpr_fm(train_data, test_data):
+    # init wandb run
+    run = wandb.init(project=config['general']['movielens'],
+                        entity=config['general']['entity'],
+                        group="BPR_FM",
+                        reinit=True)
+    reuslt = execute_bpr_fm(train_data, test_data)
+    print(f"FM={reuslt}")
+    run.finish()
 
-def fm(X_train, X_test, y_train, y_test):
+
+
+def fm(X_train, y_train, X_test, y_test, test_index, users, movies):
     # init wandb run
     run = wandb.init(project=config['general']['movielens'],
                         entity=config['general']['entity'],
                         group="FMachine",
                         reinit=True)
-    reuslt = execute_factorization_machine(X_train, y_train, X_test, y_test)
+    reuslt = execute_factorization_machine(X_train, y_train, X_test, y_test, test_index, users, movies)
     print(f"FM={reuslt}")
     run.finish()
 

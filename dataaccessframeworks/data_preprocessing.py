@@ -18,18 +18,14 @@ def get_one_hot_feature(data, user_item_col, y_col=2, time_col=3):
     print(filter_data.shape)
     
     # 做特徵的onehot encoding 
-    one_hot_encoder_data, y= get_onehot_encoding(filter_data[:,:3], users_dict, items_dict, features)
+    one_hot_encoder_data, y, concat_data = get_onehot_encoding(filter_data[:,:3], users_dict, items_dict, features)
 
-    return one_hot_encoder_data, y
+    return one_hot_encoder_data, y, concat_data
 
 # 取得user及items的one hot encoding map
 def get_onehot_encoding(data, users_dict, items_dict, features, y_col=2):
-    # 產生使用者未評分過的items
-    norating_dict = generate_norating_data(data)
-    # 將為評分資料轉為原始資料型態[user, item, rating]
-    norating_data = np.array([[i, norating_dict[i][j], 0]for i in norating_dict.keys() for j in range(len(norating_dict[i]))])
-    # concatenate real data & fake data
-    concat_data = np.concatenate((data, norating_data), axis=0)
+    # 取得加上假資料後的data
+    concat_data = get_norating_data(data)
 
     #users_onehot = get_users_onehot(data)
     sparse, dense = get_feature_onehot(concat_data, users_dict, items_dict, features)
@@ -37,7 +33,18 @@ def get_onehot_encoding(data, users_dict, items_dict, features, y_col=2):
     # 取得y
     y = concat_data[:,y_col].reshape(-1,1)
 
-    return np.concatenate((sparse, dense), axis=1), y
+    return np.concatenate((sparse, dense), axis=1), y, concat_data
+
+# 取得加上假資料的部分
+def get_norating_data(data):
+    # 產生使用者未評分過的items
+    norating_dict = generate_norating_data(data)
+    # 將為評分資料轉為原始資料型態[user, item, rating]
+    norating_data = np.array([[i, norating_dict[i][j], 0]for i in norating_dict.keys() for j in range(len(norating_dict[i]))])
+    # concatenate real data & fake data
+    concat_data = np.concatenate((data, norating_data), axis=0)
+
+    return concat_data
 
 # 取得使用者one hot
 def get_users_onehot(data):
@@ -185,3 +192,18 @@ def get_feature_map(data, user_item_col):
             features_onehot = generate_feature_onehot_map(features_onehot, data[k], k)
 
     return users_dict, items_dict, features_onehot
+
+# 產生能夠做recall的矩陣型態
+def generate_eval_array(test_values, test_index, users, items):
+    output_array = np.zeros((len(users), len(items)))
+    for i, tindex in enumerate(test_index):
+        # 實際使用者-1 (編號)
+        u = tindex[0] - 1
+        # 實際item-1 (編號)
+        m = tindex[1] - 1
+        
+        # 存入矩陣相對應位置
+        output_array[u][m] = test_values[i]
+    
+    return output_array
+    

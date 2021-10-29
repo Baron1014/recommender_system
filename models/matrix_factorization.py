@@ -11,8 +11,10 @@ import util.utility as util
 from models.collaborative_filtering import get_user_item_matrix
 from models.evaluation import recall_k
 from sklearn.metrics import ndcg_score
+from util.mywandb import WandbLog
 
 def execute_matrix_factorization(users, items, train_data, test_data):
+    log = WandbLog()
     # 存放測試資料集的rmse結果
     MF_bias_testing = list()
     # init evaluation
@@ -77,6 +79,7 @@ def execute_matrix_factorization(users, items, train_data, test_data):
     evaluation['rmse']= MF_bias_testing[-1]
     evaluation['recall@10'] = recall_k(test_matrix, np.dot(P, Q.T))
     evaluation['NDCG@10'] = ndcg_score(test_matrix, np.dot(P, Q.T))
+    log.log_evaluation(evaluation)
     
     return evaluation
 
