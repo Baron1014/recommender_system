@@ -48,7 +48,7 @@ def main():
     include_fake = get_norating_data(filter_data)
     training_data,  testing_data = training_testing(include_fake)
     # 6. BPR-FM
-    bpr_fm(training_data, testing_data)
+    bpr_fm(training_data, testing_data, users, movies)
     ###################################################################
     ## NN-based RecSys Methods
     ###################################################################
