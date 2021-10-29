@@ -82,9 +82,8 @@ def fnn(dataframe):
                         group="FNN",
                         reinit=True)
     deer = DeepCTRModel()
-    result = deer.FNN()
-    reuslt = execute_factorization_machine(X_train, y_train, X_test, y_test)
-    print(f"FNN={reuslt}")
+    result = deer.FNN(dataframe)
+    print(f"FNN={result}")
     run.finish()
 
 def xgb_lr(X_train, y_train, X_test, y_test, test_index, users, items):
