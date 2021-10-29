@@ -75,7 +75,7 @@ def gbdt_lr(X_train, y_train, X_test, y_test):
                         entity=config['general']['entity'],
                         group="GBDT_LR",
                         reinit=True)
-    reuslt = execute_bpr_mf(X_train, y_train, X_test, y_test)
+    reuslt = execute_gbdt_lr(X_train, y_train, X_test, y_test)
     print(f"GBDT_LR={reuslt}")
     run.finish()
 

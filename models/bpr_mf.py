@@ -1,5 +1,5 @@
 from spotlight.evaluation import rmse_score
-from spotlight.factorization.explicit import ExplicitFactorizationModel
+from spotlight.factorization.implicit import ImplicitFactorizationModel
 from sklearn.metrics import ndcg_score
 from dataaccessframeworks.read_data import training_testing
 from dataaccessframeworks.data_preprocessing import generate_eval_array
@@ -20,7 +20,7 @@ def execute_bpr_mf(train_data, test_data, users, items):
         rating_training_array = generate_eval_array(train[:,2], train, users, items)
 
         # build model
-        model = ExplicitFactorizationModel(n_iter=30, loss='bpr')
+        model = ImplicitFactorizationModel(n_iter=30, loss='bpr')
         model.fit(rating_training_array)
 
         predict = model.predict(test_data[:,0], test_data[:,1])
