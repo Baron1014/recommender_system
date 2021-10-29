@@ -5,7 +5,39 @@ from scipy import sparse
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 import numpy as np
+import pandas as pd
 from dataaccessframeworks.read_data import user_filter
+
+def generate_with_feature(array, user_feature, item_feature, init_col):
+    dataframe = pd.DataFrame(array, columns=init_col)
+    tmp = dict()
+    for i in range(dataframe.shape[0]):
+        # Finding list of unique keys 
+        uniqueUserKey = user_feature[1].keys()
+        for k in uniqueUserKey:
+            if k not in tmp.keys():
+                tmp[k] = user_feature[array[i, 0]][k]
+            else:
+                tmp[k].append(user_feature[array[i, 0]][k][0])
+    # 更新user features
+    for key in tmp.keys():
+        dataframe[key] = tmp[key]
+
+    #items
+    tmp = dict()
+    for i in range(dataframe.shape[0]):
+        # Finding list of unique keys 
+        uniqueItmerKey = item_feature[1].keys()
+        for k in uniqueItmerKey:
+            if k not in tmp.keys():
+                tmp[k] = item_feature[array[i, 1]][k]
+            else:
+                tmp[k].append(item_feature[array[i, 1]][k][0])
+    # 更新user features
+    for key in tmp.keys():
+        dataframe[key] = tmp[key]
+
+    return dataframe
 
 def get_one_hot_feature(data, user_item_col, y_col=2, time_col=3):
     # 取得user及items feature map 
