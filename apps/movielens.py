@@ -1,7 +1,6 @@
 import sys
 import os
 
-from models.bpr_mf import bpr_mf
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 import configparser
 config = configparser.ConfigParser()
@@ -15,6 +14,7 @@ from models.matrix_factorization import execute_matrix_factorization
 from models.factorization_machine import execute_factorization_machine
 from models.bpr_fm import execute_bpr_fm
 from models.bpr_mf import execute_bpr_mf
+from models.gbdt_lr import execute_gbdt_lr
 
 def main():
     # 取得 movielens 資料
@@ -41,9 +41,9 @@ def main():
     #mf(users, movies, training_data, testing_data)
 
     # generarte one hot encoding
-    # one_hot_x, y, add_fake_data = get_one_hot_feature(data,  'user_movie')
-    # X_train, X_test, y_train, y_test = training_testing_XY(one_hot_x, y)
-    # _, test_index, _, _ = training_testing_XY(add_fake_data, y)
+    one_hot_x, y, add_fake_data = get_one_hot_feature(data,  'user_movie')
+    X_train, X_test, y_train, y_test = training_testing_XY(one_hot_x, y)
+    _, test_index, _, _ = training_testing_XY(add_fake_data, y)
     # # 4. Factorization Machine
     # fm(X_train, y_train, X_test, y_test, test_index, users, movies)
 
@@ -51,9 +51,11 @@ def main():
     include_fake = get_norating_data(filter_data[:, :3])
     training_data,  testing_data = training_testing(include_fake)
     # 5. BPR-MF
-    bpr_mf(training_data, testing_data, users, movies)
+    #bpr_mf(training_data, testing_data, users, movies)
     # 6. BPR-FM
-    bpr_fm(training_data, testing_data, users, movies)
+    #bpr_fm(training_data, testing_data, users, movies)
+    # 7. GBDT + LR
+    gbdt_lr(X_train, y_train, X_test, y_test)
     ###################################################################
     ## NN-based RecSys Methods
     ###################################################################
@@ -67,6 +69,16 @@ def main():
     ###################################################################
     ## Ensemble Methods
     ###################################################################
+def gbdt_lr(X_train, y_train, X_test, y_test):
+    # init wandb run
+    run = wandb.init(project=config['general']['movielens'],
+                        entity=config['general']['entity'],
+                        group="GBDT_LR",
+                        reinit=True)
+    reuslt = execute_bpr_mf(X_train, y_train, X_test, y_test)
+    print(f"GBDT_LR={reuslt}")
+    run.finish()
+
 def bpr_mf(train_data, test_data, users, movies):
     # init wandb run
     run = wandb.init(project=config['general']['movielens'],
@@ -74,7 +86,7 @@ def bpr_mf(train_data, test_data, users, movies):
                         group="BPR_MF",
                         reinit=True)
     reuslt = execute_bpr_mf(train_data, test_data, users, movies)
-    print(f"FM={reuslt}")
+    print(f"BPR_MF={reuslt}")
     run.finish()
 
 
@@ -85,7 +97,7 @@ def bpr_fm(train_data, test_data, users, movies):
                         group="BPR_FM",
                         reinit=True)
     reuslt = execute_bpr_fm(train_data, test_data, users, movies)
-    print(f"FM={reuslt}")
+    print(f"BPR_FM={reuslt}")
     run.finish()
 
 def fm(X_train, y_train, X_test, y_test, test_index, users, movies):
