@@ -1,5 +1,7 @@
 import sys
 import os
+
+from models.bpr_mf import bpr_mf
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 import configparser
 config = configparser.ConfigParser()
@@ -47,6 +49,8 @@ def main():
     # 取得加上使用者未評分的sample假資料
     include_fake = get_norating_data(filter_data[:, :3])
     training_data,  testing_data = training_testing(include_fake)
+    # 5. BPR-MF
+    bpr_mf(training_data, testing_data, users, movies)
     # 6. BPR-FM
     bpr_fm(training_data, testing_data, users, movies)
     ###################################################################
