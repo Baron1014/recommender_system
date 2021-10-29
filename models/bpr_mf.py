@@ -8,7 +8,7 @@ from util.mywandb import WandbLog
 from models.evaluation import recall_k 
 
 
-def bpr_mf(train_data, test_data, users, items):
+def execute_bpr_mf(train_data, test_data, users, items):
     log = WandbLog()
     rmse = list()
     recall = list()

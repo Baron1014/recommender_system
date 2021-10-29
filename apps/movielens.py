@@ -14,6 +14,7 @@ from models.collaborative_filtering import user_sim_score, item_sim_score
 from models.matrix_factorization import execute_matrix_factorization
 from models.factorization_machine import execute_factorization_machine
 from models.bpr_fm import execute_bpr_fm
+from models.bpr_mf import execute_bpr_mf
 
 def main():
     # 取得 movielens 資料
@@ -66,6 +67,17 @@ def main():
     ###################################################################
     ## Ensemble Methods
     ###################################################################
+def bpr_mf(train_data, test_data, users, movies):
+    # init wandb run
+    run = wandb.init(project=config['general']['movielens'],
+                        entity=config['general']['entity'],
+                        group="BPR_MF",
+                        reinit=True)
+    reuslt = execute_bpr_mf(train_data, test_data, users, movies)
+    print(f"FM={reuslt}")
+    run.finish()
+
+
 def bpr_fm(train_data, test_data, users, movies):
     # init wandb run
     run = wandb.init(project=config['general']['movielens'],
@@ -75,8 +87,6 @@ def bpr_fm(train_data, test_data, users, movies):
     reuslt = execute_bpr_fm(train_data, test_data, users, movies)
     print(f"FM={reuslt}")
     run.finish()
-
-
 
 def fm(X_train, y_train, X_test, y_test, test_index, users, movies):
     # init wandb run
