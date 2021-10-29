@@ -38,20 +38,22 @@ def main():
     #mf(users, movies, training_data, testing_data)
 
     # generarte one hot encoding
-    one_hot_x, y, add_fake_data = get_one_hot_feature(data,  'user_movie')
-    X_train, X_test, y_train, y_test = training_testing_XY(one_hot_x, y)
-    _, test_index, _, _ = training_testing_XY(add_fake_data, y)
-    # 4. Factorization Machine
-    fm(X_train, y_train, X_test, y_test, test_index, users, movies)
+    # one_hot_x, y, add_fake_data = get_one_hot_feature(data,  'user_movie')
+    # X_train, X_test, y_train, y_test = training_testing_XY(one_hot_x, y)
+    # _, test_index, _, _ = training_testing_XY(add_fake_data, y)
+    # # 4. Factorization Machine
+    # fm(X_train, y_train, X_test, y_test, test_index, users, movies)
 
     # 取得加上使用者未評分的sample假資料
-    include_fake = get_norating_data(filter_data)
+    include_fake = get_norating_data(filter_data[:, :3])
     training_data,  testing_data = training_testing(include_fake)
     # 6. BPR-FM
     bpr_fm(training_data, testing_data, users, movies)
     ###################################################################
     ## NN-based RecSys Methods
     ###################################################################
+    # 1. FM-supported Neural Networks
+    #reuslt = execute_factorization_machine(X_train, y_train, X_test, y_test)
 
     ###################################################################
     ## Recent NN-based RecSys Methods
@@ -60,13 +62,13 @@ def main():
     ###################################################################
     ## Ensemble Methods
     ###################################################################
-def bpr_fm(train_data, test_data):
+def bpr_fm(train_data, test_data, users, movies):
     # init wandb run
     run = wandb.init(project=config['general']['movielens'],
                         entity=config['general']['entity'],
                         group="BPR_FM",
                         reinit=True)
-    reuslt = execute_bpr_fm(train_data, test_data)
+    reuslt = execute_bpr_fm(train_data, test_data, users, movies)
     print(f"FM={reuslt}")
     run.finish()
 
