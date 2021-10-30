@@ -65,7 +65,7 @@ def main():
     ###################################################################
     # 取得user及items feature map 
     users_dict, items_dict, features = get_feature_map(data, 'user_movie')
-    dataframe = generate_with_feature(include_fake, users_dict, items_dict, init_col=["user", "movie", "rating"])
+    dataframe = generate_with_feature(training_data, users_dict, items_dict, init_col=["user", "movie", "rating"])
     # 1. FM-supported Neural Networks
     fnn(dataframe)
 
@@ -84,6 +84,7 @@ def fnn(dataframe):
     deer = DeepCTRModel()
     result = deer.FNN(dataframe)
     print(f"FNN={result}")
+
     run.finish()
 
 def xgb_lr(X_train, y_train, X_test, y_test, test_index, users, items):
