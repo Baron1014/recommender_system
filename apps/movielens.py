@@ -72,14 +72,121 @@ def main():
     # 2. Product-based Neural Networks
     ipnn(dataframe, test_dataframe, test_index, users, movies)
     opnn(dataframe, test_dataframe, test_index, users, movies)
+    #pin
+    # 3. Convolutional Click Prediction Model 
+    ccpm(dataframe, test_dataframe, test_index, users, movies)
+    # 4. neumf
+    # 5. Wide&Deep
+    wd(dataframe, test_dataframe, test_index, users, movies)
+    # 6. Deep Drossing
+    dcn(dataframe, test_dataframe, test_index, users, movies)
+    # 7. Neural Factorization Machine
+    nfm(dataframe, test_dataframe, test_index, users, movies)
+    # 8. Deep Factorization Machine
+    deepfm(dataframe, test_dataframe, test_index, users, movies)
+
 
     ###################################################################
     ## Recent NN-based RecSys Methods
     ###################################################################
+    # 1. Attentional Factorization Machines
+    afm(dataframe, test_dataframe, test_index, users, movies)
+    # 3. xDeepFM
+    xdeepfm(dataframe, test_dataframe, test_index, users, movies)
+    # 4. Deep Interest Network
+    din(dataframe, test_dataframe, test_index, users, movies)
 
     ###################################################################
     ## Ensemble Methods
     ###################################################################
+def din(dataframe, testing_data, test_index, users, movies):
+    run = wandb.init(project=config['general']['movielens'],
+                        entity=config['general']['entity'],
+                        group="DIN",
+                        reinit=True)
+    deer = DeepCTRModel(sparse=['user', 'movie', 'movie_genre', 'user_occupation'],
+                        dense=['user_age'],
+                        y=['rating'])
+    result = deer.DIN(dataframe, testing_data, test_index, users, movies)
+    print(f"DIN={result}")
+
+def xdeepfm(dataframe, testing_data, test_index, users, movies):
+    run = wandb.init(project=config['general']['movielens'],
+                        entity=config['general']['entity'],
+                        group="xDeepFM",
+                        reinit=True)
+    deer = DeepCTRModel(sparse=['user', 'movie', 'movie_genre', 'user_occupation'],
+                        dense=['user_age'],
+                        y=['rating'])
+    result = deer.xDeepFM(dataframe, testing_data, test_index, users, movies)
+    print(f"xDeepFM={result}")
+
+def afm(dataframe, testing_data, test_index, users, movies):
+    run = wandb.init(project=config['general']['movielens'],
+                        entity=config['general']['entity'],
+                        group="AFM",
+                        reinit=True)
+    deer = DeepCTRModel(sparse=['user', 'movie', 'movie_genre', 'user_occupation'],
+                        dense=['user_age'],
+                        y=['rating'])
+    result = deer.AFM(dataframe, testing_data, test_index, users, movies)
+    print(f"AFM={result}")
+
+def deepfm(dataframe, testing_data, test_index, users, movies):
+    run = wandb.init(project=config['general']['movielens'],
+                        entity=config['general']['entity'],
+                        group="DeepFM",
+                        reinit=True)
+    deer = DeepCTRModel(sparse=['user', 'movie', 'movie_genre', 'user_occupation'],
+                        dense=['user_age'],
+                        y=['rating'])
+    result = deer.DeepFM(dataframe, testing_data, test_index, users, movies)
+    print(f"DeepFM={result}")
+
+def nfm(dataframe, testing_data, test_index, users, movies):
+    run = wandb.init(project=config['general']['movielens'],
+                        entity=config['general']['entity'],
+                        group="CCPM",
+                        reinit=True)
+    deer = DeepCTRModel(sparse=['user', 'movie', 'movie_genre', 'user_occupation'],
+                        dense=['user_age'],
+                        y=['rating'])
+    result = deer.NFM(dataframe, testing_data, test_index, users, movies)
+    print(f"NFM={result}")
+
+def dcn(dataframe, testing_data, test_index, users, movies):
+    run = wandb.init(project=config['general']['movielens'],
+                        entity=config['general']['entity'],
+                        group="DCN",
+                        reinit=True)
+    deer = DeepCTRModel(sparse=['user', 'movie', 'movie_genre', 'user_occupation'],
+                        dense=['user_age'],
+                        y=['rating'])
+    result = deer.DCN(dataframe, testing_data, test_index, users, movies)
+    print(f"DCN={result}")
+
+def wd(dataframe, testing_data, test_index, users, movies):
+    run = wandb.init(project=config['general']['movielens'],
+                        entity=config['general']['entity'],
+                        group="W&D",
+                        reinit=True)
+    deer = DeepCTRModel(sparse=['user', 'movie', 'movie_genre', 'user_occupation'],
+                        dense=['user_age'],
+                        y=['rating'])
+    result = deer.WD(dataframe, testing_data, test_index, users, movies)
+    print(f"W&D={result}")
+
+def ccpm(dataframe, testing_data, test_index, users, movies):
+    run = wandb.init(project=config['general']['movielens'],
+                        entity=config['general']['entity'],
+                        group="CCPM",
+                        reinit=True)
+    deer = DeepCTRModel(sparse=['user', 'movie', 'movie_genre', 'user_occupation'],
+                        dense=['user_age'],
+                        y=['rating'])
+    result = deer.CCPM(dataframe, testing_data, test_index, users, movies)
+    print(f"CCPM={result}")
+
 def ipnn(dataframe, testing_data, test_index, users, movies, inner=True, outter=False):
     run = wandb.init(project=config['general']['movielens'],
                         entity=config['general']['entity'],
