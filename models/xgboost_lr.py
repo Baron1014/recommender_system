@@ -1,6 +1,3 @@
-# implementation of GBDT+LR
-# import relative library
-
 import numpy as np
 import xgboost as xgb
 from sklearn.datasets import load_breast_cancer

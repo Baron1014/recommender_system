@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import ndcg_score
 from models.collaborative_filtering import wandb_config
 from models.evaluation import recall_k
-from dataaccessframeworks.data_preprocessing import generate_eval_array
+from dataaccessframeworks.data_preprocessing import generate_eval_array, get_din_data
 from util.mywandb import WandbLog
 
 class DeepCTRModel:

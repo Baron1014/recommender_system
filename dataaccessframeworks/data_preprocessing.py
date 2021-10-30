@@ -246,7 +246,6 @@ def get_din_data(df, users, items, watch_history, target):
     output_history = dict()
     for his in watch_history:
         history[his] = np.zeros((len(users), len(items)))
-        #output_history[f"hist_{his}"] = np.empty([1, len(items)])
         output_history[f"hist_{his}"] = list()
 
     for user_i in range(len(users)):
@@ -268,7 +267,6 @@ def get_din_data(df, users, items, watch_history, target):
     # items特徵順序需對應回每個使用者
     for i in tqdm(range(len(df)), desc = "trasfer history items"):
         for dis in watch_history:
-            #output_history[f"hist_{dis}"] = np.concatenate((output_history[f"hist_{dis}"], history[dis][df.iloc[i, 0] - 1].reshape(1, -1)), axis=0)
             output_history[f"hist_{dis}"].append(history[dis][df.iloc[i, 0] - 1])
 
     # 轉換成array
