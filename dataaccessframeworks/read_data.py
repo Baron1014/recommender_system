@@ -19,7 +19,7 @@ def get_movielens():
     return movie
 
 def get_yelp():
-    yelp = ['business_category', 'business_city', 'user_business', 'user_compliment', 'user_user']
+    yelp = ['business_category', 'business_city', 'user_business', 'user_compliment']
     d = dict()
 
     for i in yelp:
@@ -30,7 +30,7 @@ def get_yelp():
     return d
 
 def get_douban():
-    douban = ['book_author', 'book_publisher', 'book_year', 'user_book', 'user_user',
+    douban = ['book_author', 'book_publisher', 'book_year', 'user_book',
             'user_group', 'user_location']
     d = dict()
 

@@ -105,7 +105,7 @@ def din(train_df, test_df, test_index, users, movies, watch_history = ['book', '
                         entity=config['general']['entity'],
                         group="DIN",
                         reinit=True)
-    deer = DeepCTRModel(sparse=['user', 'book', 'user_location', 'book_author', 'book_publisher'],
+    deer = DeepCTRModel(sparse=['user', 'book', 'user_location', 'book_author', 'book_publisher', 'user_group'],
                         dense=['book_year'],
                         y=['rating'])
     result = deer.DIN(train_df, test_df, test_index, users, movies, watch_history, target)
@@ -117,7 +117,7 @@ def xdeepfm(dataframe, testing_data, test_index, users, movies):
                         entity=config['general']['entity'],
                         group="xDeepFM",
                         reinit=True)
-    deer = DeepCTRModel(sparse=['user', 'book', 'user_location', 'book_author', 'book_publisher'],
+    deer = DeepCTRModel(sparse=['user', 'book', 'user_location', 'book_author', 'book_publisher', 'user_group'],
                         dense=['book_year'],
                         y=['rating'])
     result = deer.xDeepFM(dataframe, testing_data, test_index, users, movies)
@@ -130,7 +130,7 @@ def afm(dataframe, testing_data, test_index, users, movies):
                         group="AFM",
                         reinit=True)
     # no dense
-    deer = DeepCTRModel(sparse=['user', 'book', 'user_location', 'book_author', 'book_publisher', 'book_year'],
+    deer = DeepCTRModel(sparse=['user', 'book', 'user_location', 'book_author', 'book_publisher', 'user_group'],
                         y=['rating'])
     result = deer.AFM(dataframe, testing_data, test_index, users, movies)
     print(f"AFM={result}")
@@ -141,7 +141,7 @@ def deepfm(dataframe, testing_data, test_index, users, movies):
                         entity=config['general']['entity'],
                         group="DeepFM",
                         reinit=True)
-    deer = DeepCTRModel(sparse=['user', 'book', 'user_location', 'book_author', 'book_publisher'],
+    deer = DeepCTRModel(sparse=['user', 'book', 'user_location', 'book_author', 'book_publisher', 'user_group'],
                         dense=['book_year'],
                         y=['rating'])
     result = deer.DeepFM(dataframe, testing_data, test_index, users, movies)
@@ -153,7 +153,7 @@ def nfm(dataframe, testing_data, test_index, users, movies):
                         entity=config['general']['entity'],
                         group="NFM",
                         reinit=True)
-    deer = DeepCTRModel(sparse=['user', 'book', 'user_location', 'book_author', 'book_publisher'],
+    deer = DeepCTRModel(sparse=['user', 'book', 'user_location', 'book_author', 'book_publisher', 'user_group'],
                         dense=['book_year'],
                         y=['rating'])
     result = deer.NFM(dataframe, testing_data, test_index, users, movies)
@@ -165,7 +165,7 @@ def dcn(dataframe, testing_data, test_index, users, movies):
                         entity=config['general']['entity'],
                         group="DCN",
                         reinit=True)
-    deer = DeepCTRModel(sparse=['user', 'book', 'user_location', 'book_author', 'book_publisher'],
+    deer = DeepCTRModel(sparse=['user', 'book', 'user_location', 'book_author', 'book_publisher', 'user_group'],
                         dense=['book_year'],
                         y=['rating'])
     result = deer.DCN(dataframe, testing_data, test_index, users, movies)
@@ -177,7 +177,7 @@ def wd(dataframe, testing_data, test_index, users, movies):
                         entity=config['general']['entity'],
                         group="W&D",
                         reinit=True)
-    deer = DeepCTRModel(sparse=['user', 'book', 'user_location', 'book_author', 'book_publisher'],
+    deer = DeepCTRModel(sparse=['user', 'book', 'user_location', 'book_author', 'book_publisher', 'user_group'],
                         dense=['book_year'],
                         y=['rating'])
     result = deer.WD(dataframe, testing_data, test_index, users, movies)
@@ -190,7 +190,7 @@ def ccpm(dataframe, testing_data, test_index, users, movies):
                         group="CCPM",
                         reinit=True)
     # no suppot dense
-    deer = DeepCTRModel(sparse=['user', 'book', 'user_location', 'book_author', 'book_publisher', 'book_year'],
+    deer = DeepCTRModel(sparse=['user', 'book', 'user_location', 'book_author', 'book_publisher', 'user_group'],
                         y=['rating'])
     result = deer.CCPM(dataframe, testing_data, test_index, users, movies)
     print(f"CCPM={result}")
@@ -201,7 +201,7 @@ def ipnn(dataframe, testing_data, test_index, users, movies, inner=True, outter=
                         entity=config['general']['entity'],
                         group="IPNN",
                         reinit=True)
-    deer = DeepCTRModel(sparse=['user', 'book', 'user_location', 'book_author', 'book_publisher'],
+    deer = DeepCTRModel(sparse=['user', 'book', 'user_location', 'book_author', 'book_publisher', 'user_group'],
                         dense=['book_year'],
                         y=['rating'])
     result = deer.PNN(dataframe, testing_data, test_index, users, movies, inner=inner, outter=outter)
@@ -213,7 +213,7 @@ def opnn(dataframe, testing_data, test_index, users, movies, inner=False, outter
                         entity=config['general']['entity'],
                         group="OPNN",
                         reinit=True)
-    deer = DeepCTRModel(sparse=['user', 'book', 'user_location', 'book_author', 'book_publisher'],
+    deer = DeepCTRModel(sparse=['user', 'book', 'user_location', 'book_author', 'book_publisher', 'user_group'],
                         dense=['book_year'],
                         y=['rating'])
     result = deer.PNN(dataframe, testing_data, test_index, users, movies, inner=inner, outter=outter)
@@ -225,7 +225,7 @@ def pin(dataframe, testing_data, test_index, users, movies, inner=True, outter=T
                         entity=config['general']['entity'],
                         group="PIN",
                         reinit=True)
-    deer = DeepCTRModel(sparse=['user', 'book', 'user_location', 'book_author', 'book_publisher'],
+    deer = DeepCTRModel(sparse=['user', 'book', 'user_location', 'book_author', 'book_publisher', 'user_group'],
                         dense=['book_year'],
                         y=['rating'])
     result = deer.PNN(dataframe, testing_data, test_index, users, movies, inner=inner, outter=outter)
@@ -237,7 +237,7 @@ def fnn(dataframe, testing_data, test_index, users, movies):
                         entity=config['general']['entity'],
                         group="FNN",
                         reinit=True)
-    deer = DeepCTRModel(sparse=['user', 'book', 'user_location', 'book_author', 'book_publisher'],
+    deer = DeepCTRModel(sparse=['user', 'book', 'user_location', 'book_author', 'book_publisher', 'user_group'],
                         dense=['book_year'],
                         y=['rating'])
     result = deer.FNN(dataframe, testing_data, test_index, users, movies)
