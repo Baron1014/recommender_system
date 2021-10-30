@@ -8,7 +8,7 @@ config.read('config.ini')
 import numpy as np
 import wandb
 from dataaccessframeworks.read_data import get_movielens, training_testing, user_filter, training_testing_XY
-from dataaccessframeworks.data_preprocessing import get_one_hot_feature, get_norating_data, get_feature_map, generate_with_feature
+from dataaccessframeworks.data_preprocessing import get_one_hot_feature, get_norating_data, get_feature_map, generate_with_feature, get_din_data
 from models.collaborative_filtering import user_sim_score, item_sim_score
 from models.matrix_factorization import execute_matrix_factorization
 from models.factorization_machine import execute_factorization_machine
@@ -68,11 +68,13 @@ def main():
     dataframe = generate_with_feature(training_data, users_dict, items_dict, init_col=["user", "movie", "rating"])
     test_dataframe = generate_with_feature(testing_data, users_dict, items_dict, init_col=["user", "movie", "rating"])
     # 1. FM-supported Neural Networks
-    fnn(dataframe, test_dataframe, test_index, users, movies)
+    #fnn(dataframe, test_dataframe, test_index, users, movies)
     # 2. Product-based Neural Networks
-    ipnn(dataframe, test_dataframe, test_index, users, movies)
-    opnn(dataframe, test_dataframe, test_index, users, movies)
+    #ipnn(dataframe, test_dataframe, test_index, users, movies)
+    #opnn(dataframe, test_dataframe, test_index, users, movies)
     #pin
+    din(dataframe, test_dataframe, test_index, users, movies)
+    afm(dataframe, test_dataframe, test_index, users, movies)
     # 3. Convolutional Click Prediction Model 
     ccpm(dataframe, test_dataframe, test_index, users, movies)
     # 4. neumf
@@ -99,7 +101,7 @@ def main():
     ###################################################################
     ## Ensemble Methods
     ###################################################################
-def din(dataframe, testing_data, test_index, users, movies):
+def din(train_df, test_df, test_index, users, movies, watch_history = ['movie', 'movie_genre'], target="rating"):
     run = wandb.init(project=config['general']['movielens'],
                         entity=config['general']['entity'],
                         group="DIN",
@@ -107,7 +109,7 @@ def din(dataframe, testing_data, test_index, users, movies):
     deer = DeepCTRModel(sparse=['user', 'movie', 'movie_genre', 'user_occupation'],
                         dense=['user_age'],
                         y=['rating'])
-    result = deer.DIN(dataframe, testing_data, test_index, users, movies)
+    result = deer.DIN(train_df, test_df, test_index, users, movies, watch_history, target)
     print(f"DIN={result}")
 
 def xdeepfm(dataframe, testing_data, test_index, users, movies):
@@ -126,8 +128,8 @@ def afm(dataframe, testing_data, test_index, users, movies):
                         entity=config['general']['entity'],
                         group="AFM",
                         reinit=True)
-    deer = DeepCTRModel(sparse=['user', 'movie', 'movie_genre', 'user_occupation'],
-                        dense=['user_age'],
+    # no dense
+    deer = DeepCTRModel(sparse=['user', 'movie', 'movie_genre', 'user_occupation', 'user_age'],
                         y=['rating'])
     result = deer.AFM(dataframe, testing_data, test_index, users, movies)
     print(f"AFM={result}")
@@ -181,8 +183,8 @@ def ccpm(dataframe, testing_data, test_index, users, movies):
                         entity=config['general']['entity'],
                         group="CCPM",
                         reinit=True)
-    deer = DeepCTRModel(sparse=['user', 'movie', 'movie_genre', 'user_occupation'],
-                        dense=['user_age'],
+    # no suppot dense
+    deer = DeepCTRModel(sparse=['user', 'movie', 'movie_genre', 'user_occupation', 'user_age'],
                         y=['rating'])
     result = deer.CCPM(dataframe, testing_data, test_index, users, movies)
     print(f"CCPM={result}")
