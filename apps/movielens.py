@@ -69,6 +69,9 @@ def main():
     test_dataframe = generate_with_feature(testing_data, users_dict, items_dict, init_col=["user", "movie", "rating"])
     # 1. FM-supported Neural Networks
     fnn(dataframe, test_dataframe, test_index, users, movies)
+    # 2. Product-based Neural Networks
+    ipnn(dataframe, test_dataframe, test_index, users, movies)
+    opnn(dataframe, test_dataframe, test_index, users, movies)
 
     ###################################################################
     ## Recent NN-based RecSys Methods
@@ -77,12 +80,47 @@ def main():
     ###################################################################
     ## Ensemble Methods
     ###################################################################
+def ipnn(dataframe, testing_data, test_index, users, movies, inner=True, outter=False):
+    run = wandb.init(project=config['general']['movielens'],
+                        entity=config['general']['entity'],
+                        group="IPNN",
+                        reinit=True)
+    deer = DeepCTRModel(sparse=['user', 'movie', 'movie_genre', 'user_occupation'],
+                        dense=['user_age'],
+                        y=['rating'])
+    result = deer.PNN(dataframe, testing_data, test_index, users, movies, inner=inner, outter=outter)
+    print(f"IPNN={result}")
+
+def opnn(dataframe, testing_data, test_index, users, movies, inner=False, outter=True):
+    run = wandb.init(project=config['general']['movielens'],
+                        entity=config['general']['entity'],
+                        group="OPNN",
+                        reinit=True)
+    deer = DeepCTRModel(sparse=['user', 'movie', 'movie_genre', 'user_occupation'],
+                        dense=['user_age'],
+                        y=['rating'])
+    result = deer.PNN(dataframe, testing_data, test_index, users, movies, inner=inner, outter=outter)
+    print(f"OPNN={result}")
+
+def pin(dataframe, testing_data, test_index, users, movies, inner=True, outter=True):
+    run = wandb.init(project=config['general']['movielens'],
+                        entity=config['general']['entity'],
+                        group="PIN",
+                        reinit=True)
+    deer = DeepCTRModel(sparse=['user', 'movie', 'movie_genre', 'user_occupation'],
+                        dense=['user_age'],
+                        y=['rating'])
+    result = deer.PNN(dataframe, testing_data, test_index, users, movies, inner=inner, outter=outter)
+    print(f"PIN={result}")
+
 def fnn(dataframe, testing_data, test_index, users, movies):
     run = wandb.init(project=config['general']['movielens'],
                         entity=config['general']['entity'],
                         group="FNN",
                         reinit=True)
-    deer = DeepCTRModel()
+    deer = DeepCTRModel(sparse=['user', 'movie', 'movie_genre', 'user_occupation'],
+                        dense=['user_age'],
+                        y=['rating'])
     result = deer.FNN(dataframe, testing_data, test_index, users, movies)
     print(f"FNN={result}")
 

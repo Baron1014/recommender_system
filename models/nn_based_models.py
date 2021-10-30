@@ -10,11 +10,13 @@ from dataaccessframeworks.data_preprocessing import generate_eval_array
 from util.mywandb import WandbLog
 
 class DeepCTRModel:
-    def __init__(self):
+    def __init__(self, sparse, dense, y):
         self.__models = models
-        self.__sparse_features = ['user', 'movie', 'movie_genre', 'user_occupation']
-        self.__dense_features = ['user_age']
-        self.__target = ['rating']
+        self.__sparse_features = sparse
+        self.__dense_features = dense
+        self.__target = y
+        self.__epochs = 5
+        self.__log = WandbLog()
 
     def tras_data_to_CTR(self, dataframe):
         # 1.Label Encoding for sparse features,and do simple Transformation for dense features
@@ -44,13 +46,11 @@ class DeepCTRModel:
         test_model_input = {name:test_dataframe[name] for name in feature_names}
         
         # init evaluation
-        log = WandbLog()
         rmse = list()
         recall = list()
         ndcg =list()
         result = dict()
-        epochs = 5
-        for epoch in range(epochs):
+        for epoch in range(self.__epochs):
             # 3.generate input data for model
             train, val = train_test_split(dataframe, test_size=0.1, random_state=42)
             train_model_input = {name:train[name] for name in feature_names}
@@ -73,6 +73,48 @@ class DeepCTRModel:
         result['rmse'] = sum(rmse) / len(rmse)
         result['recall@10'] = sum(recall) / len(recall)
         result['ndcg@10'] = sum(ndcg) / len(ndcg)
-        log.log_evaluation(result)
+        self.__log.log_evaluation(result)
+
+        return result
+
+
+    def PNN(self, dataframe, test_df, test_index, users, items, inner=True, outter=True):
+        # training 
+        dnn_feature_columns, linear_feature_columns, dateframe = self.tras_data_to_CTR(dataframe)
+        feature_names = get_feature_names(linear_feature_columns + dnn_feature_columns)
+        # make testing input
+        _, _, test_dataframe = self.tras_data_to_CTR(test_df)
+        test_model_input = {name:test_dataframe[name] for name in feature_names}
+        
+        # init evaluation
+        rmse = list()
+        recall = list()
+        ndcg =list()
+        result = dict()
+        for epoch in range(self.__epochs):
+            # 3.generate input data for model
+            train, val = train_test_split(dataframe, test_size=0.1, random_state=42)
+            train_model_input = {name:train[name] for name in feature_names}
+            val_model_input = {name:val[name] for name in feature_names}
+            
+            # model
+            model = self.__models.PNN(dnn_feature_columns, task='regression', use_inner=inner, use_outter=outter)
+            model.compile("adam", "mse",
+                    metrics=['mse'], )
+            history = model.fit(train_model_input, train[self.__target].values,
+                            batch_size=256, epochs=10, verbose=2, validation_split=0.2, )
+            pred_ans = model.predict(test_model_input, batch_size=256)
+
+            #result
+            real_values = test_dataframe[self.__target].values
+            rating_testing_array = generate_eval_array(real_values, test_index, users, items)
+            predict_array = generate_eval_array(pred_ans, test_index, users, items)
+            rmse.append(mse(pred_ans, real_values, squared=False))
+            recall.append(recall_k(rating_testing_array, predict_array))
+            ndcg.append(ndcg_score(rating_testing_array, predict_array))
+        result['rmse'] = sum(rmse) / len(rmse)
+        result['recall@10'] = sum(recall) / len(recall)
+        result['ndcg@10'] = sum(ndcg) / len(ndcg)
+        self.__log.log_evaluation(result)
 
         return result
