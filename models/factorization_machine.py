@@ -32,7 +32,7 @@ def execute_factorization_machine(X, y, X_test, y_test, test_index, users, items
         # define model
         fm = pywFM.FM(task='regression')
 
-        model = fm.run(X_train, y_train, X_test, y_test)
+        model = fm.run(X_train, y_train, X_val, y_val)
         predict_values = model.predictions
         predict = generate_eval_array(predict_values, test_index, users, items)
         kfold.append(util.rmse(predict_values - y_test))
