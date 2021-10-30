@@ -66,8 +66,9 @@ def main():
     # 取得user及items feature map 
     users_dict, items_dict, features = get_feature_map(data, 'user_movie')
     dataframe = generate_with_feature(training_data, users_dict, items_dict, init_col=["user", "movie", "rating"])
+    test_dataframe = generate_with_feature(testing_data, users_dict, items_dict, init_col=["user", "movie", "rating"])
     # 1. FM-supported Neural Networks
-    fnn(dataframe)
+    fnn(dataframe, test_dataframe, test_index, users, movies)
 
     ###################################################################
     ## Recent NN-based RecSys Methods
@@ -76,13 +77,13 @@ def main():
     ###################################################################
     ## Ensemble Methods
     ###################################################################
-def fnn(dataframe):
+def fnn(dataframe, testing_data, test_index, users, movies):
     run = wandb.init(project=config['general']['movielens'],
                         entity=config['general']['entity'],
                         group="FNN",
                         reinit=True)
     deer = DeepCTRModel()
-    result = deer.FNN(dataframe)
+    result = deer.FNN(dataframe, testing_data, test_index, users, movies)
     print(f"FNN={result}")
 
     run.finish()
