@@ -7,6 +7,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 import numpy as np
 import pandas as pd
 from dataaccessframeworks.read_data import user_filter
+from tqdm import tqdm
 
 def generate_with_feature(array, user_feature, item_feature, init_col):
     dataframe = pd.DataFrame(array, columns=init_col)
@@ -239,3 +240,41 @@ def generate_eval_array(test_values, test_index, users, items):
     
     return output_array
     
+# 取得使用者對於電影的評分順序資料
+def get_din_data(df, users, items, watch_history, target):
+    history = dict()
+    output_history = dict()
+    for his in watch_history:
+        history[his] = np.zeros((len(users), len(items)))
+        #output_history[f"hist_{his}"] = np.empty([1, len(items)])
+        output_history[f"hist_{his}"] = list()
+
+    for user_i in range(len(users)):
+        user = user_i + 1
+        for his in watch_history:
+            # 取得使用者總共評分的items或items的特徵
+            values = df[df['user']==user][his].values
+            for i in range(len(values)):
+                history[his][user_i, i] = values[i]
+    
+    # df to dict
+    df_dict = dict()
+    for col in df.columns:
+        if col == target:
+            y = df[col].to_numpy()
+        else:
+            df_dict[col] = df[col].to_numpy()
+
+    # items特徵順序需對應回每個使用者
+    for i in tqdm(range(len(df)), desc = "trasfer history items"):
+        for dis in watch_history:
+            #output_history[f"hist_{dis}"] = np.concatenate((output_history[f"hist_{dis}"], history[dis][df.iloc[i, 0] - 1].reshape(1, -1)), axis=0)
+            output_history[f"hist_{dis}"].append(history[dis][df.iloc[i, 0] - 1])
+
+    # 轉換成array
+    for dis in output_history.keys():
+        output_history[dis] = np.array(output_history[dis])
+
+    # 返回合併後的字典
+    return {**df_dict, **output_history}, y
+
