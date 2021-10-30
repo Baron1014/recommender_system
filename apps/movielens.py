@@ -68,13 +68,10 @@ def main():
     dataframe = generate_with_feature(training_data, users_dict, items_dict, init_col=["user", "movie", "rating"])
     test_dataframe = generate_with_feature(testing_data, users_dict, items_dict, init_col=["user", "movie", "rating"])
     # 1. FM-supported Neural Networks
-    #fnn(dataframe, test_dataframe, test_index, users, movies)
+    fnn(dataframe, test_dataframe, test_index, users, movies)
     # 2. Product-based Neural Networks
-    #ipnn(dataframe, test_dataframe, test_index, users, movies)
-    #opnn(dataframe, test_dataframe, test_index, users, movies)
-    #pin
-    din(dataframe, test_dataframe, test_index, users, movies)
-    afm(dataframe, test_dataframe, test_index, users, movies)
+    ipnn(dataframe, test_dataframe, test_index, users, movies)
+    opnn(dataframe, test_dataframe, test_index, users, movies)
     # 3. Convolutional Click Prediction Model 
     ccpm(dataframe, test_dataframe, test_index, users, movies)
     # 4. neumf
@@ -96,7 +93,7 @@ def main():
     # 3. xDeepFM
     xdeepfm(dataframe, test_dataframe, test_index, users, movies)
     # 4. Deep Interest Network
-    din(dataframe, test_dataframe, test_index, users, movies)
+    #din(dataframe, test_dataframe, test_index, users, movies)
 
     ###################################################################
     ## Ensemble Methods
@@ -111,6 +108,7 @@ def din(train_df, test_df, test_index, users, movies, watch_history = ['movie', 
                         y=['rating'])
     result = deer.DIN(train_df, test_df, test_index, users, movies, watch_history, target)
     print(f"DIN={result}")
+    run.finish()
 
 def xdeepfm(dataframe, testing_data, test_index, users, movies):
     run = wandb.init(project=config['general']['movielens'],
@@ -122,6 +120,7 @@ def xdeepfm(dataframe, testing_data, test_index, users, movies):
                         y=['rating'])
     result = deer.xDeepFM(dataframe, testing_data, test_index, users, movies)
     print(f"xDeepFM={result}")
+    run.finish()
 
 def afm(dataframe, testing_data, test_index, users, movies):
     run = wandb.init(project=config['general']['movielens'],
@@ -133,6 +132,7 @@ def afm(dataframe, testing_data, test_index, users, movies):
                         y=['rating'])
     result = deer.AFM(dataframe, testing_data, test_index, users, movies)
     print(f"AFM={result}")
+    run.finish()
 
 def deepfm(dataframe, testing_data, test_index, users, movies):
     run = wandb.init(project=config['general']['movielens'],
@@ -144,17 +144,19 @@ def deepfm(dataframe, testing_data, test_index, users, movies):
                         y=['rating'])
     result = deer.DeepFM(dataframe, testing_data, test_index, users, movies)
     print(f"DeepFM={result}")
+    run.finish()
 
 def nfm(dataframe, testing_data, test_index, users, movies):
     run = wandb.init(project=config['general']['movielens'],
                         entity=config['general']['entity'],
-                        group="CCPM",
+                        group="NFM",
                         reinit=True)
     deer = DeepCTRModel(sparse=['user', 'movie', 'movie_genre', 'user_occupation'],
                         dense=['user_age'],
                         y=['rating'])
     result = deer.NFM(dataframe, testing_data, test_index, users, movies)
     print(f"NFM={result}")
+    run.finish()
 
 def dcn(dataframe, testing_data, test_index, users, movies):
     run = wandb.init(project=config['general']['movielens'],
@@ -166,6 +168,7 @@ def dcn(dataframe, testing_data, test_index, users, movies):
                         y=['rating'])
     result = deer.DCN(dataframe, testing_data, test_index, users, movies)
     print(f"DCN={result}")
+    run.finish()
 
 def wd(dataframe, testing_data, test_index, users, movies):
     run = wandb.init(project=config['general']['movielens'],
@@ -177,6 +180,7 @@ def wd(dataframe, testing_data, test_index, users, movies):
                         y=['rating'])
     result = deer.WD(dataframe, testing_data, test_index, users, movies)
     print(f"W&D={result}")
+    run.finish()
 
 def ccpm(dataframe, testing_data, test_index, users, movies):
     run = wandb.init(project=config['general']['movielens'],
@@ -188,6 +192,7 @@ def ccpm(dataframe, testing_data, test_index, users, movies):
                         y=['rating'])
     result = deer.CCPM(dataframe, testing_data, test_index, users, movies)
     print(f"CCPM={result}")
+    run.finish()
 
 def ipnn(dataframe, testing_data, test_index, users, movies, inner=True, outter=False):
     run = wandb.init(project=config['general']['movielens'],
@@ -199,6 +204,7 @@ def ipnn(dataframe, testing_data, test_index, users, movies, inner=True, outter=
                         y=['rating'])
     result = deer.PNN(dataframe, testing_data, test_index, users, movies, inner=inner, outter=outter)
     print(f"IPNN={result}")
+    run.finish()
 
 def opnn(dataframe, testing_data, test_index, users, movies, inner=False, outter=True):
     run = wandb.init(project=config['general']['movielens'],
@@ -210,6 +216,7 @@ def opnn(dataframe, testing_data, test_index, users, movies, inner=False, outter
                         y=['rating'])
     result = deer.PNN(dataframe, testing_data, test_index, users, movies, inner=inner, outter=outter)
     print(f"OPNN={result}")
+    run.finish()
 
 def pin(dataframe, testing_data, test_index, users, movies, inner=True, outter=True):
     run = wandb.init(project=config['general']['movielens'],
@@ -221,6 +228,7 @@ def pin(dataframe, testing_data, test_index, users, movies, inner=True, outter=T
                         y=['rating'])
     result = deer.PNN(dataframe, testing_data, test_index, users, movies, inner=inner, outter=outter)
     print(f"PIN={result}")
+    run.finish()
 
 def fnn(dataframe, testing_data, test_index, users, movies):
     run = wandb.init(project=config['general']['movielens'],
