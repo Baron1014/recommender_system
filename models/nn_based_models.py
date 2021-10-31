@@ -365,10 +365,10 @@ class DeepCTRModel:
 
     def AFM(self, dataframe, test_df, test_index, users, items):
         # training 
-        dnn_feature_columns, linear_feature_columns, dataframe = self.tras_data_to_CTR(dataframe)
+        dnn_feature_columns, linear_feature_columns, dataframe = self.tras_data_to_CTR_nodense(dataframe)
         feature_names = get_feature_names(linear_feature_columns + dnn_feature_columns)
         # make testing input
-        _, _, test_dataframe = self.tras_data_to_CTR(test_df)
+        _, _, test_dataframe = self.tras_data_to_CTR_nodense(test_df)
         test_model_input = {name:test_dataframe[name] for name in feature_names}
         
         # init evaluation
