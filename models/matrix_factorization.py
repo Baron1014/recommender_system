@@ -32,9 +32,9 @@ def execute_matrix_factorization(users, items, train_data, test_data):
     # init lentent vector
     K = int(config["MF"]["latent_vector_number"])
     # init user lentent matrix
-    P = np.random.uniform(low=0, high=3, size=(len(users), K))
+    P = np.random.uniform(low=0, high=3, size=(users.max(), K))
     # init items lentent matrix
-    Q = np.random.uniform(low=0, high=3, size=(len(items), K))
+    Q = np.random.uniform(low=0, high=3, size=(items.max(), K))
 
     # parameter
     epochs = int(config["MF"]["epochs"])

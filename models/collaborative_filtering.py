@@ -17,20 +17,21 @@ from util.mywandb import WandbObject, WandbLog
 # 將資料轉換為矩陣形式
 def get_user_item_matrix(train_data, users, items):
     # init user_matrix as zero matrix
-    user_matrix = np.zeros((len(users), len(items)))
+    user_matrix = np.zeros((users.max(), items.max()))
 
-    for i in tqdm(range(len(users)), desc='data transfer user matrix'):
+    for i in tqdm(users, desc='data transfer user matrix'):
         '''
         train_data[train_data[:,0] == u] : 過濾出u使用者所有的評分資料
         train_data[train_data[:,0] == u][:,1]: 取得u使用者所有評分過的項目名稱
         '''
-        rate_index = train_data[train_data[:,0] == users[i]][:,1]                                            
+        user = i - 1
+        rate_index = train_data[train_data[:,0] == users[user]][:,1]                                            
         for rate in rate_index:
             '''
             user_matrix[u-1, rate-1]: 欲設置的rateing位置
             train_data[(train_data[:,0] == u) & (train_data[:,1] == rate)]: 取出u使用者對於評論過特定項目的資料
             '''
-            user_matrix[i, rate-1] = train_data[(train_data[:,0] == users[i]) & (train_data[:,1] == rate)][:,2].item()
+            user_matrix[user, rate-1] = train_data[(train_data[:,0] == users[user]) & (train_data[:,1] == rate)][:,2].item()
 
     return user_matrix
 
