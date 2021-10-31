@@ -52,7 +52,7 @@ def main():
     X_train, X_test, y_train, y_test = training_testing_XY(one_hot_x, y)
     _, test_index, _, _ = training_testing_XY(add_fake_data, y)
     # # 4. Factorization Machine
-    # fm(X_train, y_train, X_test, y_test, test_index, users, movies)
+    fm(X_train, y_train, X_test, y_test, test_index, users, movies)
 
     # 取得加上使用者未評分的sample假資料
     include_fake = get_norating_data(filter_data[:, :3])
@@ -130,6 +130,7 @@ def EnsemblemModel(train_df, test_df, y_test, test_index, users, items):
     result['rmse'] =mse(ensemble_predict, y_test, squared=False)
     result['recall@10']= recall_k(rating_testing_array, predict_array)
     result['ndcg@10'] = ndcg_score(rating_testing_array, predict_array)
+    log.log_evaluation(result)
 
     print(f"Ensemble={result}")
 

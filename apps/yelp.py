@@ -10,7 +10,7 @@ import numpy as np
 from dataaccessframeworks.read_data import get_yelp, training_testing, user_filter, training_testing_XY
 from models.collaborative_filtering import user_sim_score, item_sim_score
 from models.matrix_factorization import execute_matrix_factorization
-from dataaccessframeworks.data_preprocessing import get_one_hot_feature, get_norating_data, get_feature_map, generate_with_feature, get_din_data
+from dataaccessframeworks.data_preprocessing import get_one_hot_feature, get_norating_data, get_feature_map, generate_eval_array, generate_with_feature, get_din_data
 from models.collaborative_filtering import user_sim_score, item_sim_score
 from models.matrix_factorization import execute_matrix_factorization
 from models.factorization_machine import execute_factorization_machine
@@ -19,6 +19,10 @@ from models.bpr_mf import execute_bpr_mf
 from models.gbdt_lr import execute_gbdt_lr
 from models.xgboost_lr import execute_xgb_lr
 from models.nn_based_models import DeepCTRModel
+from sklearn.metrics import mean_squared_error as mse
+from sklearn.metrics import ndcg_score
+from models.evaluation import recall_k
+from util.mywandb import WandbLog
 
 def main():
     # 取得 movielens 資料
@@ -37,9 +41,9 @@ def main():
     ## Typical RecSys Methods
     ###################################################################
     # 1. U-CF-cos & U-CF-pcc
-    #ucf(users, business, training_data, testing_data)
+    ucf(users, business, training_data, testing_data)
     # 2. I-CF-cos & I-CF-pcc
-    #icf(users, business, training_data, testing_data)
+    icf(users, business, training_data, testing_data)
     # 3. Matrix Factorization
     mf(users, business, training_data, testing_data)
     # generarte one hot encoding
@@ -47,19 +51,19 @@ def main():
     X_train, X_test, y_train, y_test = training_testing_XY(one_hot_x, y)
     _, test_index, _, _ = training_testing_XY(add_fake_data, y)
     # # 4. Factorization Machine
-    # fm(X_train, y_train, X_test, y_test, test_index, users, movies)
+    fm(X_train, y_train, X_test, y_test, test_index, users, business)
 
     # 取得加上使用者未評分的sample假資料
     include_fake = get_norating_data(filter_data[:, :3])
     training_data,  testing_data = training_testing(include_fake)
     # 5. BPR-MF
-    #bpr_mf(training_data, testing_data, users, movies)
+    #bpr_mf(training_data, testing_data, users, business)
     # 6. BPR-FM
-    #bpr_fm(training_data, testing_data, users, movies)
+    #bpr_fm(training_data, testing_data, users, business)
     # 7. GBDT + LR
-    # gbdt_lr(X_train, y_train, X_test, y_test)
+    #gbdt_lr(X_train, y_train, X_test, y_test)
     # 8. xgboost + LR
-    #execute_xgb_lr(X_train, y_train, X_test, y_test, test_index, users, movies)
+    #execute_xgb_lr(X_train, y_train, X_test, y_test, test_index, users, business)
     ###################################################################
     ## NN-based RecSys Methods
     ###################################################################
@@ -94,13 +98,46 @@ def main():
     # 3. xDeepFM
     xdeepfm(dataframe, test_dataframe, test_index, users, business)
     # 4. Deep Interest Network
-    #din(dataframe, test_dataframe, test_index, users, movies)
+    #din(dataframe, test_dataframe, test_index, users, business)
 
 
 
     ###################################################################
     ## Ensemble Methods
     ###################################################################
+    EnsemblemModel(dataframe, test_dataframe, y_test, test_index, users, business)
+
+def EnsemblemModel(train_df, test_df, y_test, test_index, users, items):
+    # init wandb run
+    run = wandb.init(project=config['general']['yelp'],
+                        entity=config['general']['entity'],
+                        group="Ensemble",
+                        reinit=True)
+    deer = DeepCTRModel(sparse=['user', 'business', 'business_city', 'business_category'],
+                        dense=['user_compliment'],
+                        y=['rating'])
+
+    _, opnn_predict_values = deer.PNN(train_df, test_df, test_index, users, items, inner=True, outter=False)
+    _, ipnn_predict_values = deer.PNN(train_df, test_df, test_index, users, items, inner=False, outter=True)
+    _, fnn_predict_values  = deer.FNN(train_df, test_df, test_index, users, items)
+
+    ensemble_predict = (ipnn_predict_values+fnn_predict_values+opnn_predict_values) / 3
+
+    # generate array
+    rating_testing_array = generate_eval_array(y_test, test_index, users, items)
+    predict_array = generate_eval_array(ensemble_predict, test_index, users, items)
+
+    log = WandbLog()
+    result = dict()
+    result['rmse'] =mse(ensemble_predict, y_test, squared=False)
+    result['recall@10']= recall_k(rating_testing_array, predict_array)
+    result['ndcg@10'] = ndcg_score(rating_testing_array, predict_array)
+    log.log_evaluation(result)
+
+    print(f"Ensemble={result}")
+
+    run.finish()
+
 def din(train_df, test_df, test_index, users, movies, watch_history = ['business', 'business_category'], target="rating"):
     run = wandb.init(project=config['general']['yelp'],
                         entity=config['general']['entity'],
@@ -205,7 +242,7 @@ def ipnn(dataframe, testing_data, test_index, users, movies, inner=True, outter=
     deer = DeepCTRModel(sparse=['user', 'business', 'business_city', 'business_category'],
                         dense=['user_compliment'],
                         y=['rating'])
-    result = deer.PNN(dataframe, testing_data, test_index, users, movies, inner=inner, outter=outter)
+    result, _= deer.PNN(dataframe, testing_data, test_index, users, movies, inner=inner, outter=outter)
     print(f"IPNN={result}")
     run.finish()
 
@@ -217,7 +254,7 @@ def opnn(dataframe, testing_data, test_index, users, movies, inner=False, outter
     deer = DeepCTRModel(sparse=['user', 'business', 'business_city', 'business_category'],
                         dense=['user_compliment'],
                         y=['rating'])
-    result = deer.PNN(dataframe, testing_data, test_index, users, movies, inner=inner, outter=outter)
+    result, _ = deer.PNN(dataframe, testing_data, test_index, users, movies, inner=inner, outter=outter)
     print(f"OPNN={result}")
     run.finish()
 
@@ -241,7 +278,7 @@ def fnn(dataframe, testing_data, test_index, users, movies):
     deer = DeepCTRModel(sparse=['user', 'business', 'business_city', 'business_category'],
                         dense=['user_compliment'],
                         y=['rating'])
-    result = deer.FNN(dataframe, testing_data, test_index, users, movies)
+    result, _ = deer.FNN(dataframe, testing_data, test_index, users, movies)
     print(f"FNN={result}")
 
     run.finish()
