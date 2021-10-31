@@ -21,6 +21,7 @@ def execute_factorization_machine(X, y, X_test, y_test, test_index, users, items
     recall = list()
     ndcg = list()
     result = dict()
+    sum_predict_values = 0 
     for i in range(5):
         print(f"Start {i} FM Cross-Validation")
         X_train, X_val, y_train, y_val = training_testing_XY(X, y, test_size=float(config["model"]["val_rate"]), random_state=None)
@@ -38,10 +39,11 @@ def execute_factorization_machine(X, y, X_test, y_test, test_index, users, items
         kfold.append(util.rmse(predict_values - y_test))
         recall.append(recall_k(rating_testing_array, predict))
         ndcg.append(ndcg_score(rating_testing_array, predict))
+        sum_predict_values += predict_values
 
     result['rmse'] = sum(kfold)/len(kfold) 
     result['recall@10'] = sum(recall)/len(recall)
     result['NDCG@10'] = sum(ndcg)/len(ndcg)
     log.log_evaluation(result)
 
-    return result
+    return result, sum_predict_values

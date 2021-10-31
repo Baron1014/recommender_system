@@ -1,6 +1,8 @@
 import sys
 import os
 
+from util.mywandb import WandbLog
+
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 import configparser
 config = configparser.ConfigParser()
@@ -8,10 +10,13 @@ config.read('config.ini')
 import numpy as np
 import wandb
 from dataaccessframeworks.read_data import get_movielens, training_testing, user_filter, training_testing_XY
-from dataaccessframeworks.data_preprocessing import get_one_hot_feature, get_norating_data, get_feature_map, generate_with_feature, get_din_data
-from models.collaborative_filtering import user_sim_score, item_sim_score
+from dataaccessframeworks.data_preprocessing import get_one_hot_feature, get_norating_data, get_feature_map, generate_eval_array, generate_with_feature, get_din_data
+from models.collaborative_filtering import predict, user_sim_score, item_sim_score
 from models.matrix_factorization import execute_matrix_factorization
 from models.factorization_machine import execute_factorization_machine
+from sklearn.metrics import mean_squared_error as mse
+from sklearn.metrics import ndcg_score
+from models.evaluation import recall_k
 from models.bpr_fm import execute_bpr_fm
 from models.bpr_mf import execute_bpr_mf
 from models.gbdt_lr import execute_gbdt_lr
@@ -40,7 +45,7 @@ def main():
     # 2. I-CF-cos & I-CF-pcc
     #icf(users, movies, training_data, testing_data)
     # 3. Matrix Factorization
-    #mf(users, movies, training_data, testing_data)
+    mf(users, movies, training_data, testing_data)
 
     # generarte one hot encoding
     one_hot_x, y, add_fake_data = get_one_hot_feature(data,  'user_movie')
@@ -98,6 +103,38 @@ def main():
     ###################################################################
     ## Ensemble Methods
     ###################################################################
+    EnsemblemModel(dataframe, test_dataframe, X_train, y_train, X_test, y_test, test_index, users, movies)
+
+def EnsemblemModel(train_df, test_df, X_train, y_train, X_test, y_test, test_index, users, items):
+    # init wandb run
+    run = wandb.init(project=config['general']['movielens'],
+                        entity=config['general']['entity'],
+                        group="Ensemble",
+                        reinit=True)
+    deer = DeepCTRModel(sparse=['user', 'movie', 'movie_genre', 'user_occupation'],
+                        dense=['user_age'],
+                        y=['rating'])
+
+    _, inn_predict_values = deer.PNN(train_df, test_df, test_index, users, items, inner=True, outter=False)
+    _, fnn_predict_values  = deer.FNN(train_df, test_df, test_index, users, items)
+    _, fm_predict_values = execute_factorization_machine(X_train, y_train, X_test, y_test, test_index, users, items)
+
+    ensemble_predict = (inn_predict_values+fnn_predict_values+fm_predict_values) / 3
+
+    # generate array
+    rating_testing_array = generate_eval_array(y_test, test_index, users, items)
+    predict_array = generate_eval_array(ensemble_predict, test_index, users, items)
+
+    log = WandbLog()
+    result = dict()
+    result['rmse'] =mse(ensemble_predict, y_test, squared=False)
+    result['recall@10']= recall_k(rating_testing_array, predict_array)
+    result['ndcg@10'] = ndcg_score(rating_testing_array, predict_array)
+
+    print(f"Ensemble={result}")
+
+    run.finish()
+
 def din(train_df, test_df, test_index, users, movies, watch_history = ['movie', 'movie_genre'], target="rating"):
     run = wandb.init(project=config['general']['movielens'],
                         entity=config['general']['entity'],
@@ -202,7 +239,7 @@ def ipnn(dataframe, testing_data, test_index, users, movies, inner=True, outter=
     deer = DeepCTRModel(sparse=['user', 'movie', 'movie_genre', 'user_occupation'],
                         dense=['user_age'],
                         y=['rating'])
-    result = deer.PNN(dataframe, testing_data, test_index, users, movies, inner=inner, outter=outter)
+    result, _ = deer.PNN(dataframe, testing_data, test_index, users, movies, inner=inner, outter=outter)
     print(f"IPNN={result}")
     run.finish()
 
@@ -214,7 +251,7 @@ def opnn(dataframe, testing_data, test_index, users, movies, inner=False, outter
     deer = DeepCTRModel(sparse=['user', 'movie', 'movie_genre', 'user_occupation'],
                         dense=['user_age'],
                         y=['rating'])
-    result = deer.PNN(dataframe, testing_data, test_index, users, movies, inner=inner, outter=outter)
+    result, _ = deer.PNN(dataframe, testing_data, test_index, users, movies, inner=inner, outter=outter)
     print(f"OPNN={result}")
     run.finish()
 
@@ -235,10 +272,10 @@ def fnn(dataframe, testing_data, test_index, users, movies):
                         entity=config['general']['entity'],
                         group="FNN",
                         reinit=True)
-    deer = DeepCTRModel(sparse=['user', 'movie', 'movie_genre', 'user_occupation'],
+    deer= DeepCTRModel(sparse=['user', 'movie', 'movie_genre', 'user_occupation'],
                         dense=['user_age'],
                         y=['rating'])
-    result = deer.FNN(dataframe, testing_data, test_index, users, movies)
+    result, _ = deer.FNN(dataframe, testing_data, test_index, users, movies)
     print(f"FNN={result}")
 
     run.finish()
@@ -291,7 +328,7 @@ def fm(X_train, y_train, X_test, y_test, test_index, users, movies):
                         entity=config['general']['entity'],
                         group="FMachine",
                         reinit=True)
-    reuslt = execute_factorization_machine(X_train, y_train, X_test, y_test, test_index, users, movies)
+    reuslt, predict_values = execute_factorization_machine(X_train, y_train, X_test, y_test, test_index, users, movies)
     print(f"FM={reuslt}")
     run.finish()
 

@@ -84,6 +84,7 @@ class DeepCTRModel:
         recall = list()
         ndcg =list()
         result = dict()
+        sum_predict = 0
         for epoch in range(self.__epochs):
             # 3.generate input data for model
             train, val = train_test_split(dataframe, test_size=0.1, random_state=42)
@@ -104,12 +105,13 @@ class DeepCTRModel:
             rmse.append(mse(pred_ans, real_values, squared=False))
             recall.append(recall_k(rating_testing_array, predict_array))
             ndcg.append(ndcg_score(rating_testing_array, predict_array))
+            sum_predict+= pred_ans
         result['rmse'] = sum(rmse) / len(rmse)
         result['recall@10'] = sum(recall) / len(recall)
         result['ndcg@10'] = sum(ndcg) / len(ndcg)
         self.__log.log_evaluation(result)
 
-        return result
+        return result, sum_predict/5
 
 
     def PNN(self, dataframe, test_df, test_index, users, items, inner=True, outter=True):
@@ -125,6 +127,7 @@ class DeepCTRModel:
         recall = list()
         ndcg =list()
         result = dict()
+        sum_predict = 0
         for epoch in range(self.__epochs):
             # 3.generate input data for model
             train, val = train_test_split(dataframe, test_size=0.1, random_state=42)
@@ -146,12 +149,13 @@ class DeepCTRModel:
             rmse.append(mse(pred_ans, real_values, squared=False))
             recall.append(recall_k(rating_testing_array, predict_array))
             ndcg.append(ndcg_score(rating_testing_array, predict_array))
+            sum_predict += pred_ans
         result['rmse'] = sum(rmse) / len(rmse)
         result['recall@10'] = sum(recall) / len(recall)
         result['ndcg@10'] = sum(ndcg) / len(ndcg)
         self.__log.log_evaluation(result)
 
-        return result
+        return result, sum_predict / 5
 
 
     def CCPM(self, dataframe, test_df, test_index, users, items):
