@@ -1,7 +1,6 @@
 import sys
 import os
 
-from util.mywandb import WandbLog
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 import configparser
@@ -22,6 +21,7 @@ from models.bpr_mf import execute_bpr_mf
 from models.gbdt_lr import execute_gbdt_lr
 from models.xgboost_lr import execute_xgb_lr
 from models.nn_based_models import DeepCTRModel
+from util.mywandb import WandbLog
 
 def main():
     # 取得 movielens 資料
@@ -103,9 +103,9 @@ def main():
     ###################################################################
     ## Ensemble Methods
     ###################################################################
-    EnsemblemModel(dataframe, test_dataframe, X_train, y_train, X_test, y_test, test_index, users, movies)
+    EnsemblemModel(dataframe, test_dataframe, y_test, test_index, users, movies)
 
-def EnsemblemModel(train_df, test_df, X_train, y_train, X_test, y_test, test_index, users, items):
+def EnsemblemModel(train_df, test_df, y_test, test_index, users, items):
     # init wandb run
     run = wandb.init(project=config['general']['movielens'],
                         entity=config['general']['entity'],
@@ -115,11 +115,11 @@ def EnsemblemModel(train_df, test_df, X_train, y_train, X_test, y_test, test_ind
                         dense=['user_age'],
                         y=['rating'])
 
-    _, inn_predict_values = deer.PNN(train_df, test_df, test_index, users, items, inner=True, outter=False)
+    _, opnn_predict_values = deer.PNN(train_df, test_df, test_index, users, items, inner=True, outter=False)
+    _, ipnn_predict_values = deer.PNN(train_df, test_df, test_index, users, items, inner=False, outter=True)
     _, fnn_predict_values  = deer.FNN(train_df, test_df, test_index, users, items)
-    _, fm_predict_values = execute_factorization_machine(X_train, y_train, X_test, y_test, test_index, users, items)
 
-    ensemble_predict = (inn_predict_values+fnn_predict_values+fm_predict_values) / 3
+    ensemble_predict = (ipnn_predict_values+fnn_predict_values+opnn_predict_values) / 3
 
     # generate array
     rating_testing_array = generate_eval_array(y_test, test_index, users, items)
