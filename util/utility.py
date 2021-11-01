@@ -1,24 +1,30 @@
 import numpy as np 
 from tqdm import tqdm
 
-# 計算cosine sim
+# 計算cosine & pcc sim
 # target: users or items
-def get_consine_sim(target, target_matrix):
+def get_sim(target, target_matrix):
     # init 目標相似度名單
     cos_dict = dict()
+    pcc_dict = dict()
     for u in tqdm(range(len(target)), desc='caculator u & v similar'):
         # init 目標 u 跟 v 的相似度
         uv_cos = list()
+        uv_pcc = list()
         for v in range(len(target)):
             if u != v:
                 # 計算使用者u、v的cosine
                 uv_cos.append(cos_sim(target_matrix[u], target_matrix[v]))
+                # 計算使用者u、v的pcc
+                uv_pcc.append(pcc_sim(target_matrix[u], target_matrix[v]))
             else:
                 # 為了保持index不會跑掉，因此在自己的位置不做計算且補0
                 uv_cos.append(0)
+                uv_pcc.append(0)
         cos_dict[u] = uv_cos
+        pcc_dict[u] = uv_pcc
 
-    return cos_dict
+    return cos_dict, pcc_dict
 
 
 # 計算兩個向量的 cosine 相似度
@@ -27,6 +33,16 @@ def cos_sim(a, b):
     if s == 0:
         return 0
     return np.inner(a,b) / s
+
+# 計算兩個向量的 Pearson Correlation Coefficient 相似度
+def pcc_sim(a, b):
+    mean_a = non_zero_vec_mean(a)
+    mean_b = non_zero_vec_mean(b)
+    s = np.sqrt(np.sum(np.power((a-mean_a), 2))) * np.sqrt(np.sum(np.power((b-mean_b), 2)))
+    if s == 0:
+        return 0
+    
+    return np.inner(a-mean_a, b-mean_b) / s
 
 
 # 計算bias

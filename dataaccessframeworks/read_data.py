@@ -8,7 +8,7 @@ config.read('config.ini')
 
 def get_movielens():
 
-    MovieLens = ['user_movie', 'movie_genre', 'movie_movie(knn)', 'user_age', 'user_occupation', 'user_user(knn)']
+    MovieLens = ['user_movie', 'movie_genre', 'user_age', 'user_occupation']
     movie = dict()
 
     for i in MovieLens:
@@ -18,12 +18,40 @@ def get_movielens():
 
     return movie
 
+def get_yelp():
+    yelp = ['business_category', 'business_city', 'user_business', 'user_compliment']
+    d = dict()
+
+    for i in yelp:
+        data = dataaccesskernel.read_dat(f'../data/Yelp/{i}.dat')
+        print(f"{i}:{data[0:3]}")
+        d[i] = np.array(data)
+
+    return d
+
+def get_douban():
+    douban = ['book_author', 'book_publisher', 'book_year', 'user_book',
+            'user_group', 'user_location']
+    d = dict()
+
+    for i in douban:
+        data = dataaccesskernel.read_dat(f'../data/Douban Book/{i}.dat')
+        print(f"{i}:{data[0:3]}")
+        d[i] = np.array(data)
+
+    return d
+
 def training_testing(data):
-    # 將訓練資料及測試資料切為8:2
-    #train_data, test_data = train_test_split(data, test_size = float(config['model']['testing_rate']), random_state=int(config['model']['random_state']))
-    train_data, test_data = train_test_split(data, test_size = 0.2, random_state=42)
+    # 將訓練資料及測試資料切分
+    train_data, test_data = train_test_split(data, test_size = float(config['model']['testing_rate']), random_state=int(config['model']['random_state']))
 
     return train_data, test_data
+
+def training_testing_XY(X, y, test_size=float(config['model']['testing_rate']), random_state=int(config['model']['random_state'])):
+    # 將訓練資料及測試資料切分
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = test_size, random_state=random_state)
+
+    return X_train, X_test, y_train, y_test
 
 # 刪除user column 小於3的使用者資料
 def user_filter(data, col):
