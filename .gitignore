@@ -16,3 +16,7 @@ spotlight/
 spotlight_package/
 
 lightfm
+
+apps/__pycache__/
+
+wandb/
