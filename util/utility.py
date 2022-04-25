@@ -1,5 +1,15 @@
 import numpy as np 
 from tqdm import tqdm
+from sklearn.metrics.pairwise import cosine_similarity
+from scipy import sparse
+
+# 計算cosine & pcc sim
+# target: users or items
+def get_sim_array(target_matrix):
+    cos_array = cosine_similarity(target_matrix)
+    pcc_array = np.corrcoef(target_matrix)
+
+    return cos_array, pcc_array
 
 # 計算cosine & pcc sim
 # target: users or items
@@ -26,7 +36,6 @@ def get_sim(target, target_matrix):
 
     return cos_dict, pcc_dict
 
-
 # 計算兩個向量的 cosine 相似度
 def cos_sim(a, b):
     s = norm(a)*norm(b)
@@ -46,9 +55,9 @@ def pcc_sim(a, b):
 
 
 # 計算bias
-def get_bias(user_matrix, users, movies):
+def get_bias(user_matrix, users, items):
     # 計算bias
-    bias_matrix = np.zeros((len(users), len(movies)))
+    bias_matrix = np.zeros((len(users), len(items)))
     mean = get_u(user_matrix)
 
      # init u + bu
@@ -57,15 +66,15 @@ def get_bias(user_matrix, users, movies):
 
     # Bias = u + bu + bi
     for i in range(bias_matrix.shape[1]):
-        bias_matrix[:,i] += get_ibias(user_matrix, i) - mean
+        bias_matrix[:,i] = bias_matrix[:,i] + get_ibias(user_matrix, i) - mean
 
     # 刪除原本沒有評分的bias
-    for i in range(user_matrix.shape[0]):
-        for j in range(user_matrix.shape[1]):
+    for i in range(len(users)):
+        for j in range(len(items)):
             if user_matrix[i,j] == 0:
                 bias_matrix[i,j] = 0
 
-    return bias_matrix
+    return sparse.csr_matrix(bias_matrix)
 
 
 # 取得整體平均

@@ -15,7 +15,7 @@ def recall_k(true_array, predict_array, k=10):
         if total_rating_number != 0:
             recall.append(top_real_interactive/total_rating_number)
         else:
-            print(f"User {i} no rating!")
+            #print(f"User {i} no rating!")
             recall.append(0)
 
     return sum(recall)/len(recall)

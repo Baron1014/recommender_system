@@ -1,10 +1,11 @@
+import os
 import numpy as np
 import pandas as pd
 from dataaccessframeworks import dataaccesskernel
 import configparser
 from sklearn.model_selection import train_test_split
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read(os.path.join(os.path.dirname(os.getcwd()), 'config.ini'))
 
 def get_movielens():
 
@@ -35,7 +36,7 @@ def get_douban():
     d = dict()
 
     for i in douban:
-        data = dataaccesskernel.read_dat(f'../data/Douban Book/{i}.dat')
+        data = dataaccesskernel.read_dat(f'../data/Douban/{i}.dat')
         print(f"{i}:{data[0:3]}")
         d[i] = np.array(data)
 
