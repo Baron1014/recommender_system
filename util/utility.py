@@ -5,11 +5,15 @@ from scipy import sparse
 
 # 計算cosine & pcc sim
 # target: users or items
-def get_sim_array(target_matrix):
-    cos_array = cosine_similarity(target_matrix)
-    pcc_array = np.corrcoef(target_matrix)
+def get_sim_array(target_matrix, sim="cos"):
+    if sim is 'cos':
+        sim_array = cosine_similarity(target_matrix)
+    #cos_array = sparse.csr_matrix(cos_array)
+    else:
+        sim_array = np.corrcoef(target_matrix)
+    #pcc_array = sparse.csr_matrix(pcc_array)
 
-    return cos_array, pcc_array
+    return sim_array
 
 # 計算cosine & pcc sim
 # target: users or items
