@@ -83,7 +83,9 @@ def get_bias(user_matrix, users, items):
 
 # 取得整體平均
 def get_u(matrix):
-    return np.mean(non_zero_mean(matrix)) 
+    non_zero = non_zero_mean(matrix)
+    non_zero[np.isnan(non_zero)] = 0
+    return np.mean(non_zero) 
 
 
 # 針對向量非0地方做計算
