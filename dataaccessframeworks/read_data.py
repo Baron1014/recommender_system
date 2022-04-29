@@ -14,9 +14,12 @@ def get_movielens():
 
     for i in MovieLens:
         data = dataaccesskernel.read_dat(f'../data/Movielens/{i}.dat')
-        print(f"{i}:{data[0:3]}")
-        movie[i] = np.array(data)
-
+        if i=='user_movie':
+            movie[i] = np.array(data)
+            movie[i] = movie[i][:, :3]
+        else:
+            movie[i] = np.array(data)
+        print(f"{i}:{movie[i][0:3]}")
     return movie
 
 def get_yelp():

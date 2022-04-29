@@ -123,7 +123,6 @@ def se(t, p):
 def rmse(delta_list):
     if len(delta_list)==0:
         return None
-    
     return (sum(delta_list)/len(delta_list))**0.5
 
 # 計算向量長度

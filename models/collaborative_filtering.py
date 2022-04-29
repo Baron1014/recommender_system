@@ -17,7 +17,7 @@ from util.mywandb import WandbObject, WandbLog
 # 將資料轉換為矩陣形式
 def get_user_item_matrix(train_data, users, items):
     # init user_matrix as zero matrix
-    user_matrix = np.zeros((users.max(), items.max()))
+    user_matrix = np.zeros((max(users), max(items)))
 
     for user in tqdm(users, desc='data transfer user matrix'):
         '''
