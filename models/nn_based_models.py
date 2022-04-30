@@ -17,7 +17,7 @@ class DeepCTRModel:
         self.__dense_features = dense
         self.__target = y
         self.__epochs = 5
-        self.__training_epochs = 100
+        self.__training_epochs = 10
         self.__log = WandbLog()
 
     def tras_data_to_CTR(self, dataframe):
@@ -68,6 +68,7 @@ class DeepCTRModel:
                             length_name="seq_length")]
         # Notice: History behavior sequence feature name must start with "hist_".
         behavior_feature_list = ["movie", "movie_genre"]
+        print(get_feature_names(feature_columns))
         x = {name: data_dict[name] for name in get_feature_names(feature_columns)}
 
         return x, y, feature_columns, behavior_feature_list
