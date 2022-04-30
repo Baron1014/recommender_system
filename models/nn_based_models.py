@@ -17,8 +17,8 @@ class DeepCTRModel:
         self.__dense_features = dense
         self.__target = y
         self.__epochs = 5
-        self.__training_epochs = 100
-        # self.__log = WandbLog()
+        self.__training_epochs = 10
+        self.__log = WandbLog()
 
     def tras_data_to_CTR(self, dataframe):
         # 1.Label Encoding for sparse features,and do simple Transformation for dense features
@@ -58,13 +58,13 @@ class DeepCTRModel:
     
     def get_din_xy(self, dataframe, users, items, history, target):
         data_dict, y = get_din_data(dataframe, users, items, watch_history = history, target=target)
-        feature_columns = [SparseFeat(feat, vocabulary_size=dataframe[feat].nunique()+1,embedding_dim=1000)
+        feature_columns = [SparseFeat(feat, vocabulary_size=dataframe[feat].nunique()+1,embedding_dim=8)
                            for i,feat in enumerate(self.__sparse_features)] + [DenseFeat(feat, 1,)
                           for feat in self.__dense_features]
         feature_columns += [
-            VarLenSparseFeat(SparseFeat('hist_movie', vocabulary_size=dataframe['movie'].nunique()+1, embedding_dim=1000, embedding_name='movie'),
-                            maxlen=4, length_name="seq_length"),
-            VarLenSparseFeat(SparseFeat('hist_movie_genre', dataframe['movie_genre'].nunique()+1, embedding_dim=1000, embedding_name='movie_genre'), maxlen=4,
+            VarLenSparseFeat(SparseFeat('hist_movie', vocabulary_size=dataframe['movie'].nunique()+1, embedding_dim=4, embedding_name='movie'),
+                            maxlen=1682, length_name="seq_length"),
+            VarLenSparseFeat(SparseFeat('hist_movie_genre', dataframe['movie_genre'].nunique()+1, embedding_dim=4, embedding_name='movie_genre'), maxlen=1682,
                             length_name="seq_length")]
         # Notice: History behavior sequence feature name must start with "hist_".
         behavior_feature_list = ["movie", "movie_genre"]
@@ -96,7 +96,7 @@ class DeepCTRModel:
             model = self.__models.FNN(linear_feature_columns, dnn_feature_columns, task='regression')
             model.compile("adam", "mse",
                     metrics=['mse'], )
-            history = model.fit(train_model_input, train[self.__target].values,
+            model.fit(train_model_input, train[self.__target].values,
                             batch_size=256, epochs=self.__training_epochs, verbose=2, validation_split=0.2, )
             pred_ans = model.predict(test_model_input, batch_size=256)
 
@@ -472,7 +472,7 @@ class DeepCTRModel:
 
             model = self.__models.DIN(feature_columns, behavior_feature_list, task='regression')
             model.compile("adam", "mse",
-                    metrics=['mse'], )
+                    metrics=['mse'])
             history = model.fit(train_X, train_y,
                             batch_size=256, epochs=self.__training_epochs, verbose=2, validation_split=0.2, )
             pred_ans = model.predict(test_x, batch_size=256)
@@ -487,6 +487,6 @@ class DeepCTRModel:
         result['rmse'] = sum(rmse) / len(rmse)
         result['recall@10'] = sum(recall) / len(recall)
         result['ndcg@10'] = sum(ndcg) / len(ndcg)
-        # self.__log.log_evaluation(result)
+        self.__log.log_evaluation(result)
 
         return result

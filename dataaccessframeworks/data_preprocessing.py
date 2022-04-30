@@ -331,7 +331,7 @@ def get_din_data(df, users, items, watch_history, target):
             y = df[col].to_numpy()
         else:
             df_dict[col] = df[col].to_numpy()
-            print("df_dict[{}]: {}, lengh={}, unique={}".format(col, df_dict[col], len(df_dict[col]), df[col].nunique()))
+            # print("df_dict[{}]: {}, lengh={}, unique={}".format(col, df_dict[col], len(df_dict[col]), df[col].nunique()))
     # items特徵順序需對應回每個使用者
     for i in tqdm(range(len(df)), desc = "trasfer history items"):
         for dis in watch_history:
