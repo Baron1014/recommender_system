@@ -17,8 +17,8 @@ class DeepCTRModel:
         self.__dense_features = dense
         self.__target = y
         self.__epochs = 5
-        self.__training_epochs = 10
-        self.__log = WandbLog()
+        self.__training_epochs = 100
+        # self.__log = WandbLog()
 
     def tras_data_to_CTR(self, dataframe):
         # 1.Label Encoding for sparse features,and do simple Transformation for dense features
@@ -58,17 +58,16 @@ class DeepCTRModel:
     
     def get_din_xy(self, dataframe, users, items, history, target):
         data_dict, y = get_din_data(dataframe, users, items, watch_history = history, target=target)
-        feature_columns = [SparseFeat(feat, vocabulary_size=dataframe[feat].nunique(),embedding_dim=4 )
+        feature_columns = [SparseFeat(feat, vocabulary_size=dataframe[feat].nunique()+1,embedding_dim=1000)
                            for i,feat in enumerate(self.__sparse_features)] + [DenseFeat(feat, 1,)
                           for feat in self.__dense_features]
         feature_columns += [
-            VarLenSparseFeat(SparseFeat('hist_movie', vocabulary_size=dataframe['movie'].nunique(), embedding_dim=4, embedding_name='movie'),
+            VarLenSparseFeat(SparseFeat('hist_movie', vocabulary_size=dataframe['movie'].nunique()+1, embedding_dim=1000, embedding_name='movie'),
                             maxlen=4, length_name="seq_length"),
-            VarLenSparseFeat(SparseFeat('hist_movie_genre', dataframe['movie_genre'].nunique(), embedding_dim=4, embedding_name='movie_genre'), maxlen=4,
+            VarLenSparseFeat(SparseFeat('hist_movie_genre', dataframe['movie_genre'].nunique()+1, embedding_dim=1000, embedding_name='movie_genre'), maxlen=4,
                             length_name="seq_length")]
         # Notice: History behavior sequence feature name must start with "hist_".
         behavior_feature_list = ["movie", "movie_genre"]
-        print(get_feature_names(feature_columns))
         x = {name: data_dict[name] for name in get_feature_names(feature_columns)}
 
         return x, y, feature_columns, behavior_feature_list
@@ -458,7 +457,7 @@ class DeepCTRModel:
 
     def DIN(self, dataframe, test_dataframe, test_index, users, items, history, target):
 
-        test_x, test_y, _, _ = self.get_din_xy(dataframe, users, items, history, target)
+        test_x, test_y, _, _ = self.get_din_xy(test_dataframe, users, items, history, target)
         
         # init evaluation
         rmse = list()
@@ -488,6 +487,6 @@ class DeepCTRModel:
         result['rmse'] = sum(rmse) / len(rmse)
         result['recall@10'] = sum(recall) / len(recall)
         result['ndcg@10'] = sum(ndcg) / len(ndcg)
-        self.__log.log_evaluation(result)
+        # self.__log.log_evaluation(result)
 
         return result

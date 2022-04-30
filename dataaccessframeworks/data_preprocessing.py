@@ -308,9 +308,11 @@ def generate_eval_array(test_values, test_index, users, items):
 def get_din_data(df, users, items, watch_history, target):
     history = dict()
     output_history = dict()
+    actual_length = list()
     for his in watch_history:
         history[his] = np.zeros((len(users), len(items)))
         output_history[f"hist_{his}"] = list()
+    output_history['seq_length'] = list()
 
     for user_i in range(len(users)):
         user = user_i + 1
@@ -318,8 +320,10 @@ def get_din_data(df, users, items, watch_history, target):
             # 取得使用者總共評分的items或items的特徵
             values = df[df['user']==user][his].values
             for i in range(len(values)):
-                history[his][user_i, i] = values[i]
-    
+                history[his][user_i, i] = values[i] 
+            if his==watch_history[0]:
+                actual_length.append(len(values))
+
     # df to dict
     df_dict = dict()
     for col in df.columns:
@@ -327,12 +331,13 @@ def get_din_data(df, users, items, watch_history, target):
             y = df[col].to_numpy()
         else:
             df_dict[col] = df[col].to_numpy()
-
+            print("df_dict[{}]: {}, lengh={}, unique={}".format(col, df_dict[col], len(df_dict[col]), df[col].nunique()))
     # items特徵順序需對應回每個使用者
     for i in tqdm(range(len(df)), desc = "trasfer history items"):
         for dis in watch_history:
             output_history[f"hist_{dis}"].append(history[dis][df.iloc[i, 0] - 1])
-
+        output_history["seq_length"].append(actual_length[df.iloc[i, 0] - 1])
+            
     # 轉換成array
     for dis in output_history.keys():
         output_history[dis] = np.array(output_history[dis])
