@@ -17,6 +17,7 @@ class DeepCTRModel:
         self.__dense_features = dense
         self.__target = y
         self.__epochs = 5
+        self.__training_epochs = 100
         self.__log = WandbLog()
 
     def tras_data_to_CTR(self, dataframe):
@@ -86,6 +87,7 @@ class DeepCTRModel:
         result = dict()
         sum_predict = 0
         for epoch in range(self.__epochs):
+            print("[{}/{} Cross Validation]".format(epoch, self.__epochs))
             # 3.generate input data for model
             train, val = train_test_split(dataframe, test_size=0.1, random_state=42)
             train_model_input = {name:train[name] for name in feature_names}
@@ -95,7 +97,7 @@ class DeepCTRModel:
             model.compile("adam", "mse",
                     metrics=['mse'], )
             history = model.fit(train_model_input, train[self.__target].values,
-                            batch_size=256, epochs=10, verbose=2, validation_split=0.2, )
+                            batch_size=256, epochs=self.__training_epochs, verbose=2, validation_split=0.2, )
             pred_ans = model.predict(test_model_input, batch_size=256)
 
             #result
@@ -129,6 +131,7 @@ class DeepCTRModel:
         result = dict()
         sum_predict = 0
         for epoch in range(self.__epochs):
+            print("[{}/{} Cross Validation]".format(epoch, self.__epochs))
             # 3.generate input data for model
             train, val = train_test_split(dataframe, test_size=0.1, random_state=42)
             train_model_input = {name:train[name] for name in feature_names}
@@ -139,7 +142,7 @@ class DeepCTRModel:
             model.compile("adam", "mse",
                     metrics=['mse'], )
             history = model.fit(train_model_input, train[self.__target].values,
-                            batch_size=256, epochs=10, verbose=2, validation_split=0.2, )
+                            batch_size=256, epochs=self.__training_epochs, verbose=2, validation_split=0.2, )
             pred_ans = model.predict(test_model_input, batch_size=256)
 
             #result
@@ -172,6 +175,7 @@ class DeepCTRModel:
         ndcg =list()
         result = dict()
         for epoch in range(self.__epochs):
+            print("[{}/{} Cross Validation]".format(epoch, self.__epochs))
             # 3.generate input data for model
             train, val = train_test_split(dataframe, test_size=0.1, random_state=42)
             train_model_input = {name:train[name] for name in feature_names}
@@ -181,7 +185,7 @@ class DeepCTRModel:
             model.compile("adam", "mse",
                     metrics=['mse'], )
             history = model.fit(train_model_input, train[self.__target].values,
-                            batch_size=256, epochs=10, verbose=2, validation_split=0.2, )
+                            batch_size=256, epochs=self.__training_epochs, verbose=2, validation_split=0.2, )
             pred_ans = model.predict(test_model_input, batch_size=256)
 
             #result
@@ -213,6 +217,7 @@ class DeepCTRModel:
         ndcg =list()
         result = dict()
         for epoch in range(self.__epochs):
+            print("[{}/{} Cross Validation]".format(epoch, self.__epochs))
             # 3.generate input data for model
             train, val = train_test_split(dataframe, test_size=0.1, random_state=42)
             train_model_input = {name:train[name] for name in feature_names}
@@ -222,7 +227,7 @@ class DeepCTRModel:
             model.compile("adam", "mse",
                     metrics=['mse'], )
             history = model.fit(train_model_input, train[self.__target].values,
-                            batch_size=256, epochs=10, verbose=2, validation_split=0.2, )
+                            batch_size=256, epochs=self.__training_epochs, verbose=2, validation_split=0.2, )
             pred_ans = model.predict(test_model_input, batch_size=256)
 
             #result
@@ -254,6 +259,7 @@ class DeepCTRModel:
         ndcg =list()
         result = dict()
         for epoch in range(self.__epochs):
+            print("[{}/{} Cross Validation]".format(epoch, self.__epochs))
             # 3.generate input data for model
             train, val = train_test_split(dataframe, test_size=0.1, random_state=42)
             train_model_input = {name:train[name] for name in feature_names}
@@ -263,7 +269,7 @@ class DeepCTRModel:
             model.compile("adam", "mse",
                     metrics=['mse'], )
             history = model.fit(train_model_input, train[self.__target].values,
-                            batch_size=256, epochs=10, verbose=2, validation_split=0.2, )
+                            batch_size=256, epochs=self.__training_epochs, verbose=2, validation_split=0.2, )
             pred_ans = model.predict(test_model_input, batch_size=256)
 
             #result
@@ -295,6 +301,7 @@ class DeepCTRModel:
         ndcg =list()
         result = dict()
         for epoch in range(self.__epochs):
+            print("[{}/{} Cross Validation]".format(epoch, self.__epochs))
             # 3.generate input data for model
             train, val = train_test_split(dataframe, test_size=0.1, random_state=42)
             train_model_input = {name:train[name] for name in feature_names}
@@ -304,7 +311,7 @@ class DeepCTRModel:
             model.compile("adam", "mse",
                     metrics=['mse'], )
             history = model.fit(train_model_input, train[self.__target].values,
-                            batch_size=256, epochs=10, verbose=2, validation_split=0.2, )
+                            batch_size=256, epochs=self.__training_epochs, verbose=2, validation_split=0.2, )
             pred_ans = model.predict(test_model_input, batch_size=256)
 
             #result
@@ -336,6 +343,7 @@ class DeepCTRModel:
         ndcg =list()
         result = dict()
         for epoch in range(self.__epochs):
+            print("[{}/{} Cross Validation]".format(epoch, self.__epochs))
             # 3.generate input data for model
             train, val = train_test_split(dataframe, test_size=0.1, random_state=42)
             train_model_input = {name:train[name] for name in feature_names}
@@ -345,7 +353,7 @@ class DeepCTRModel:
             model.compile("adam", "mse",
                     metrics=['mse'], )
             history = model.fit(train_model_input, train[self.__target].values,
-                            batch_size=256, epochs=10, verbose=2, validation_split=0.2, )
+                            batch_size=256, epochs=self.__training_epochs, verbose=2, validation_split=0.2, )
             pred_ans = model.predict(test_model_input, batch_size=256)
 
             #result
@@ -377,6 +385,7 @@ class DeepCTRModel:
         ndcg =list()
         result = dict()
         for epoch in range(self.__epochs):
+            print("[{}/{} Cross Validation]".format(epoch, self.__epochs))
             # 3.generate input data for model
             train, val = train_test_split(dataframe, test_size=0.1, random_state=42)
             train_model_input = {name:train[name] for name in feature_names}
@@ -386,7 +395,7 @@ class DeepCTRModel:
             model.compile("adam", "mse",
                     metrics=['mse'], )
             history = model.fit(train_model_input, train[self.__target].values,
-                            batch_size=256, epochs=10, verbose=2, validation_split=0.2, )
+                            batch_size=256, epochs=self.__training_epochs, verbose=2, validation_split=0.2, )
             pred_ans = model.predict(test_model_input, batch_size=256)
 
             #result
@@ -418,6 +427,7 @@ class DeepCTRModel:
         ndcg =list()
         result = dict()
         for epoch in range(self.__epochs):
+            print("[{}/{} Cross Validation]".format(epoch, self.__epochs))
             # 3.generate input data for model
             train, val = train_test_split(dataframe, test_size=0.1, random_state=42)
             train_model_input = {name:train[name] for name in feature_names}
@@ -427,7 +437,7 @@ class DeepCTRModel:
             model.compile("adam", "mse",
                     metrics=['mse'], )
             history = model.fit(train_model_input, train[self.__target].values,
-                            batch_size=256, epochs=10, verbose=2, validation_split=0.2, )
+                            batch_size=256, epochs=self.__training_epochs, verbose=2, validation_split=0.2, )
             pred_ans = model.predict(test_model_input, batch_size=256)
 
             #result
@@ -455,6 +465,7 @@ class DeepCTRModel:
         ndcg =list()
         result = dict()
         for epoch in range(self.__epochs):
+            print("[{}/{} Cross Validation]".format(epoch, self.__epochs))
             # 3.generate input data for model
             train, val = train_test_split(dataframe, test_size=0.1, random_state=42)
             train_X, train_y, feature_columns, behavior_feature_list = self.get_din_xy(dataframe, users, items, history, target)
@@ -463,7 +474,7 @@ class DeepCTRModel:
             model.compile("adam", "mse",
                     metrics=['mse'], )
             history = model.fit(train_X, train_y,
-                            batch_size=256, epochs=10, verbose=2, validation_split=0.2, )
+                            batch_size=256, epochs=self.__training_epochs, verbose=2, validation_split=0.2, )
             pred_ans = model.predict(test_x, batch_size=256)
 
             #result
