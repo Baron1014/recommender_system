@@ -394,7 +394,7 @@ class DeepCTRModel:
             model = self.__models.AFM(linear_feature_columns, dnn_feature_columns, task='regression')
             model.compile("adam", "mse",
                     metrics=['mse'], )
-            history = model.fit(train_model_input, train[self.__target].values,
+            model.fit(train_model_input, train[self.__target].values,
                             batch_size=256, epochs=self.__training_epochs, verbose=2, validation_split=0.2, )
             pred_ans = model.predict(test_model_input, batch_size=256)
 
@@ -436,7 +436,7 @@ class DeepCTRModel:
             model = self.__models.xDeepFM(linear_feature_columns, dnn_feature_columns, task='regression')
             model.compile("adam", "mse",
                     metrics=['mse'], )
-            history = model.fit(train_model_input, train[self.__target].values,
+            model.fit(train_model_input, train[self.__target].values,
                             batch_size=256, epochs=self.__training_epochs, verbose=2, validation_split=0.2, )
             pred_ans = model.predict(test_model_input, batch_size=256)
 
@@ -473,7 +473,7 @@ class DeepCTRModel:
             model = self.__models.DIN(feature_columns, behavior_feature_list, task='regression')
             model.compile("adam", "mse",
                     metrics=['mse'])
-            history = model.fit(train_X, train_y,
+            model.fit(train_X, train_y,
                             batch_size=256, epochs=self.__training_epochs, verbose=2, validation_split=0.2, )
             pred_ans = model.predict(test_x, batch_size=256)
 
