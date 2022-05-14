@@ -11,13 +11,13 @@ from dataaccessframeworks.data_preprocessing import generate_eval_array, get_din
 from util.mywandb import WandbLog
 
 class DeepCTRModel:
-    def __init__(self, sparse, dense=None, y=None):
+    def __init__(self, sparse, dense=None, y=None, training_epochs=100):
         self.__models = models
         self.__sparse_features = sparse
         self.__dense_features = dense
         self.__target = y
         self.__epochs = 5
-        self.__training_epochs = 10
+        self.__training_epochs = training_epochs
         self.__log = WandbLog()
 
     def tras_data_to_CTR(self, dataframe):
@@ -300,6 +300,7 @@ class DeepCTRModel:
         recall = list()
         ndcg =list()
         result = dict()
+        sum_predict = 0
         for epoch in range(self.__epochs):
             print("[{}/{} Cross Validation]".format(epoch, self.__epochs))
             # 3.generate input data for model
@@ -313,6 +314,7 @@ class DeepCTRModel:
             history = model.fit(train_model_input, train[self.__target].values,
                             batch_size=256, epochs=self.__training_epochs, verbose=2, validation_split=0.2, )
             pred_ans = model.predict(test_model_input, batch_size=256)
+            sum_predict += pred_ans
 
             #result
             real_values = test_dataframe[self.__target].values
@@ -326,7 +328,7 @@ class DeepCTRModel:
         result['ndcg@10'] = sum(ndcg) / len(ndcg)
         self.__log.log_evaluation(result)
 
-        return result
+        return result, sum_predict/self.__epochs
 
 
     def DeepFM(self, dataframe, test_df, test_index, users, items):
@@ -384,6 +386,7 @@ class DeepCTRModel:
         recall = list()
         ndcg =list()
         result = dict()
+        sum_predict = 0
         for epoch in range(self.__epochs):
             print("[{}/{} Cross Validation]".format(epoch, self.__epochs))
             # 3.generate input data for model
@@ -397,6 +400,7 @@ class DeepCTRModel:
             model.fit(train_model_input, train[self.__target].values,
                             batch_size=256, epochs=self.__training_epochs, verbose=2, validation_split=0.2, )
             pred_ans = model.predict(test_model_input, batch_size=256)
+            sum_predict += pred_ans
 
             #result
             real_values = test_dataframe[self.__target].values
@@ -410,7 +414,8 @@ class DeepCTRModel:
         result['ndcg@10'] = sum(ndcg) / len(ndcg)
         self.__log.log_evaluation(result)
 
-        return result
+        return result, sum_predict/self.__epochs
+        # return result
 
 
     def xDeepFM(self, dataframe, test_df, test_index, users, items):
@@ -490,3 +495,56 @@ class DeepCTRModel:
         self.__log.log_evaluation(result)
 
         return result
+    
+    def Ensemble(self, dataframe, test_df, test_index, users, items):
+        # training 
+        dnn_feature_columns, linear_feature_columns, dataframe = self.tras_data_to_CTR_nodense(dataframe)
+        feature_names = get_feature_names(linear_feature_columns + dnn_feature_columns)
+        # make testing input
+        _, _, test_dataframe = self.tras_data_to_CTR_nodense(test_df)
+        test_model_input = {name:test_dataframe[name] for name in feature_names}
+        
+        # init evaluation
+        rmse = list()
+        recall = list()
+        ndcg =list()
+        result = dict()
+        for epoch in range(self.__epochs):
+            print("[{}/{} Cross Validation]".format(epoch, self.__epochs))
+            # 3.generate input data for model
+            train, val = train_test_split(dataframe, test_size=0.1, random_state=42)
+            train_model_input = {name:train[name] for name in feature_names}
+            val_model_input = {name:val[name] for name in feature_names}
+            
+            # model
+            model = self.__models.AFM(linear_feature_columns, dnn_feature_columns, task='regression')
+            model.compile("adam", "mse",
+                    metrics=['mse'], )
+            model.fit(train_model_input, train[self.__target].values,
+                            batch_size=256, epochs=self.__training_epochs, verbose=2, validation_split=0.2)
+            pred_afm = model.predict(test_model_input, batch_size=256)
+            
+            # model_nfm
+            model_nfm = self.__models.NFM(linear_feature_columns, dnn_feature_columns, task='regression')
+            model_nfm.compile("adam", "mse",
+                    metrics=['mse'], )
+            model_nfm.fit(train_model_input, train[self.__target].values,
+                            batch_size=256, epochs=self.__training_epochs, verbose=2, validation_split=0.2)
+            pred_nfm = model_nfm.predict(test_model_input, batch_size=256)
+            
+            pred_ans = (pred_afm+pred_nfm)/2
+            
+            #result
+            real_values = test_dataframe[self.__target].values
+            rating_testing_array = generate_eval_array(real_values, test_index, users, items)
+            predict_array = generate_eval_array(pred_ans, test_index, users, items)
+            rmse.append(mse(pred_ans, real_values, squared=False))
+            recall.append(recall_k(rating_testing_array, predict_array))
+            ndcg.append(ndcg_score(rating_testing_array, predict_array))
+        result['rmse'] = sum(rmse) / len(rmse)
+        result['recall@10'] = sum(recall) / len(recall)
+        result['ndcg@10'] = sum(ndcg) / len(ndcg)
+        self.__log.log_evaluation(result)
+
+        return result
+    
