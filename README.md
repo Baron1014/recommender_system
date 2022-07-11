@@ -1,6 +1,123 @@
 # recommender_system
 RecSys of state-of-the-art 
 
+## Models List
+<table>
+  <tr>
+    <th width=10%> Code </th>
+    <th width=45%> Model </th>
+    <th width=45%> Paper </th>
+  </tr>
+  <tr>
+    <td>UCF-s</td>
+    <td>User‐based Collaborative filtering (Cosine as similaritity) </td>
+    <td rowspan="4">[IEEE 2018]<a href="https://ieeexplore.ieee.org/document/8514809">Collaborative Neural Social Recommendation</a></td>
+  </tr>
+  <tr>
+    <td>UCF-p</td>
+    <td>User‐based Collaborative filtering (Pearson correlation as similaritity) </td>
+  </tr>
+  <tr>
+    <td>ICF-s</td>
+    <td>Item‐based Collaborative filtering (Cosine as similaritity) </td>
+  </tr>
+  <tr>
+    <td>ICF-p</td>
+    <td>Item‐based Collaborative filtering (Pearson correlation as similaritity) </td>
+  </tr>
+  <tr>
+    <td>MF</td>
+    <td>Matrix Factorization</td>
+    <td>[IEEE 2009]<a href="https://ieeexplore.ieee.org/document/5197422">Matrix Factorization Techniques for Recommender Systems</a></td>
+  </tr>
+  <tr>
+    <td>FM</td>
+    <td>Factorization Machine</td>
+    <td>[IEEE 2010]<a href="https://ieeexplore.ieee.org/document/5694074">Factorization Machines</a></td>
+  </tr>
+  <tr>
+    <td>BPR‐MF</td>
+    <td>Matrix Factorization with BPR</td>
+    <td rowspan="2">[arxiv 2010]<a href="https://arxiv.org/pdf/1205.2618.pdf">BPR: Bayesian Personalized Ranking from Implicit Feedback </a></td>
+  </tr>
+  <tr>
+    <td>BPR‐FM</td>
+    <td>Factorization Machine with BPR</td>
+  </tr>
+  <tr>
+    <td>GBDT-LR</td>
+    <td>Pre‐training via GBDT for LR</td>
+    <td>[Euclid 2001]<a href="https://projecteuclid.org/journals/annals-of-statistics/volume-29/issue-5/Greedy-function-approximation-A-gradient-boostingmachine/10.1214/aos/1013203451.full">Greedy function approximation: A gradient boosting machine.</a></td>
+  </tr>
+  <tr>
+    <td>XGB-LR</td>
+    <td>Pre‐training via XGBoost for LR</td>
+    <td>[arxiv 2016]<a href="https://arxiv.org/abs/1603.02754">XGBoost: A Scalable Tree Boosting System</a></td>
+  </tr>
+  <tr>
+    <td>FNN</td>
+    <td>FM‐supported Neural Networks</td>
+    <td>[arxiv 2016]<a href="https://arxiv.org/pdf/1601.02376.pdf">Deep Learning over Multi-field Categorical Data: A Case Study on User Response Prediction</a></td>
+  </tr>
+  <tr>
+    <td>IPNN</td>
+    <td>Product‐based Neural Networks (Inner‐Product)</td>
+    <td rowspan="3">[ICDM 2016]<a href="https://arxiv.org/pdf/1611.00144.pdf">Product-based neural networks for user response prediction</a></td>
+  </tr>
+  <tr>
+    <td>OPNN</td>
+    <td>Product‐based Neural Networks (Outer‐Product)</td>
+    </tr>
+  <tr>
+    <td>PIN</td>
+    <td>Product‐based Neural Networks (Product‐network in Network)</td>
+  </tr>
+  <tr>
+    <td>CCPM</td>
+    <td>Convolutional Click Prediction Model</td>
+    <td>[CIKM 2015]<a href="http://ir.ia.ac.cn/bitstream/173211/12337/1/A%20Convolutional%20Click%20Prediction%20Model.pdf">A Convolutional Click Prediction Model</a></td>
+  </tr>
+  <tr>
+    <td>WD</td>
+    <td>Wide & Deep</td>
+    <td>[arxiv 2016]<a href="https://arxiv.org/pdf/1606.07792.pdf">Wide & Deep Learning for Recommender Systems</a></td>
+  </tr>
+  <tr>
+    <td>DCN</td>
+    <td>Deep & Cross Network</td>
+    <td>[arxiv 2017]<a href="https://arxiv.org/abs/1708.05123">Deep & Cross Network for Ad Click Predictions</a></td>
+  </tr>
+  <tr>
+    <td>NFM</td>
+    <td>Neural Factorization Machine</td>
+    <td>[arxiv 2017]<a href="https://arxiv.org/pdf/1708.05027.pdf">Neural Factorization Machines for Sparse Predictive Analytics</a></td>
+  </tr>
+  <tr>
+    <td>DeepFM</td>
+    <td>Deep Factorization Machine</td>
+    <td>[IJCAI 2017]<a href="http://www.ijcai.org/proceedings/2017/0239.pdf">DeepFM: A Factorization-Machine based Neural Network for CTR Prediction</a></td>
+  </tr>
+  <tr>
+    <td>AFM</td>
+    <td>Attentional Factorization Machine</td>
+    <td>[IJCAI 2017]<a href="http://www.ijcai.org/proceedings/2017/435">Attentional Factorization Machines: Learning the Weight of Feature Interactions via Attention Networks</a></td>
+  </tr>
+  <tr>
+    <td>xDeepFM</td>
+    <td>xDeepFM</td>
+    <td>[arxiv 2018]<a href="https://arxiv.org/pdf/1803.05170.pdf">XGBoost: A Scalable Tree Boosting System</a></td>
+  </tr>
+  <tr>
+    <td>DIN</td>
+    <td>Deep Interest Network</td>
+    <td>[arxiv 2018]<a href="https://arxiv.org/pdf/1706.06978.pdf">Deep Interest Network for Click-Through Rate Prediction</a></td>
+  </tr>
+  <tr>
+    <td>Proposed</td>
+    <td colspan="2" align="center">AFM + NFM</td>
+  </tr>
+</table>
+
 ## performance
 <table>
   <tr>
