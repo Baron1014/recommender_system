@@ -4,8 +4,8 @@ This document presents the extensive experimental research results conducted on 
 The primary goal of this study was to conduct a comparative analysis of these recommendation techniques to ascertain their strengths and weaknesses. We aimed to provide a profound understanding of their suitability for various application scenarios and the factors influencing their effectiveness.
 
 The major findings from our experiments suggest that our proposed composite method (combining Attentional Factorization Machine (AFM) and Neural Factorization Machine (NFM)) outperforms other methods. It demonstrates exceptional performance in terms of recommendation accuracy.
-<div style="text-align: center;">
-<img src="https://i.imgur.com/bGs2dKL.png"/>
+<div align="center">
+<img src="https://i.imgur.com/bGs2dKL.png" width="70%"/>
 </div>
 
 ## Models List
