@@ -1,6 +1,9 @@
 # recommender_system
-RecSys of state-of-the-art 
+This document presents the extensive experimental research results conducted on recommendation systems. We evaluated a total of 23 distinct recommendation methods, including 10 typical RecSys methods and 13 NN-based RecSys methods. Our objective was to assess their performance on three different datasets: MovieLens, Yelp, and Douban Book.
 
+The primary goal of this study was to conduct a comparative analysis of these recommendation techniques to ascertain their strengths and weaknesses. We aimed to provide a profound understanding of their suitability for various application scenarios and the factors influencing their effectiveness.
+
+The major findings from our experiments suggest that our proposed composite method (combining Attentional Factorization Machine (AFM) and Neural Factorization Machine (NFM)) outperforms other methods. It demonstrates exceptional performance in terms of recommendation accuracy.
 ## Models List
 <table>
   <tr>
